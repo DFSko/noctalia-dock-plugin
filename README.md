@@ -1,6 +1,6 @@
 # noctalia-dock-plugin
 
-A vertical dock plugin for Noctalia with pinned apps synced from the launcher. Inspired by [Dash to Dock](https://github.com/micheleg/dash-to-dock) and the [Ubuntu Desktop](https://ubuntu.com/desktop) dock UX.
+A vertical dock plugin for Noctalia shell with pinned apps synced from the launcher. Inspired by [Dash to Dock](https://github.com/micheleg/dash-to-dock) and the [Ubuntu Desktop](https://ubuntu.com/desktop) dock UX.
 
 ## Screenshot
 
