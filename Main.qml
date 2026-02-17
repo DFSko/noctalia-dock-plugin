@@ -275,6 +275,22 @@ Item {
         dragColumnY = 0;
     }
 
+    function indexAtColumnY(columnY, appCount) {
+        if (appCount <= 0) return -1;
+
+        const buttonExtent = iconSize + buttonPadding;
+        const step = buttonExtent + spacing;
+        if (step <= 0 || buttonExtent <= 0) return -1;
+
+        const rawIndex = Math.floor(columnY / step);
+        if (rawIndex < 0 || rawIndex >= appCount) return -1;
+
+        const offsetInSlot = columnY - (rawIndex * step);
+        if (offsetInSlot < 0 || offsetInSlot > buttonExtent) return -1;
+
+        return rawIndex;
+    }
+
     function clearPointerState() {
         leftPressActive = false;
         leftPressColumnY = 0;
@@ -409,11 +425,11 @@ Item {
                         const arr = Settings.data.appLauncher.pinnedApps || [];
                         if (arr.length === 0) return;
 
-                        const step = root.iconSize + root.buttonPadding + root.spacing;
-                        if (step <= 0) return;
-
-                        const rawIndex = Math.floor(point.y / step);
-                        const index = Math.max(0, Math.min(arr.length - 1, rawIndex));
+                        const index = root.indexAtColumnY(point.y, arr.length);
+                        if (index < 0) {
+                            root.clearPointerState();
+                            return;
+                        }
 
                         root.leftPressActive = true;
                         root.leftPressColumnY = point.y;
