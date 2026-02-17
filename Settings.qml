@@ -16,6 +16,7 @@ ColumnLayout {
     property int valueSpacing: cfg.spacing ?? defaults.spacing ?? 10
     property int valueIconInset: cfg.iconInset ?? defaults.iconInset ?? 2
     property real valueOpacity: cfg.backgroundOpacity ?? defaults.backgroundOpacity ?? 0.78
+    property bool valueWorkspaceScrollEnabled: cfg.workspaceScrollEnabled ?? defaults.workspaceScrollEnabled ?? true
 
     spacing: Style.marginL
 
@@ -106,6 +107,12 @@ ColumnLayout {
         }
     }
 
+    NToggle {
+        label: 'Workspace switch on scroll'
+        description: 'Scroll over dock to change workspace'
+        checked: root.valueWorkspaceScrollEnabled
+        onToggled: checked => root.valueWorkspaceScrollEnabled = checked
+    }
     NLabel {
         label: 'Pinned apps source'
         description: 'Apps are synced from launcher pins: Settings.data.appLauncher.pinnedApps'
@@ -119,6 +126,7 @@ ColumnLayout {
         pluginApi.pluginSettings.spacing = root.valueSpacing;
         pluginApi.pluginSettings.iconInset = root.valueIconInset;
         pluginApi.pluginSettings.backgroundOpacity = root.valueOpacity;
+        pluginApi.pluginSettings.workspaceScrollEnabled = root.valueWorkspaceScrollEnabled;
 
         pluginApi.saveSettings();
     }

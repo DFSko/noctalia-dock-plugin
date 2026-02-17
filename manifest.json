@@ -23,7 +23,8 @@
       "iconSize": 46,
       "spacing": 10,
       "iconInset": 2,
-      "backgroundOpacity": 0.78
+      "backgroundOpacity": 0.78,
+      "workspaceScrollEnabled": true
     }
   }
 }

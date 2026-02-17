@@ -22,6 +22,7 @@ Item {
     readonly property int iconInset: pluginApi?.pluginSettings?.iconInset ?? defaults.iconInset ?? 2
     readonly property int buttonPadding: Math.max(0, iconInset * 2)
     readonly property real backgroundOpacity: pluginApi?.pluginSettings?.backgroundOpacity ?? defaults.backgroundOpacity ?? 0.78
+    readonly property bool workspaceScrollEnabled: pluginApi?.pluginSettings?.workspaceScrollEnabled ?? defaults.workspaceScrollEnabled ?? true
     readonly property var pinnedApps: Settings?.data?.appLauncher?.pinnedApps || []
     property bool dragActive: false
     property string dragAppId: ''
@@ -30,6 +31,7 @@ Item {
     property string leftPressedAppId: ''
     property real dragColumnY: 0
     property string launchFeedbackAppKey: ''
+    property real workspaceWheelAccumulator: 0
 
     function markLaunchFeedback(appId) {
         launchFeedbackAppKey = AppUtils.normalizeAppKey(appId);
@@ -38,6 +40,62 @@ Item {
 
     function clearLaunchFeedback() {
         launchFeedbackAppKey = '';
+    }
+
+    function switchWorkspaceByOffset(offset, screenObj) {
+        if (!CompositorService || !CompositorService.workspaces || CompositorService.workspaces.count === 0) return false;
+        if (!offset) return false;
+
+        const allWorkspaces = [];
+        const localWorkspaces = [];
+        const screenName = screenObj?.name || '';
+
+        for (let i = 0; i < CompositorService.workspaces.count; i++) {
+            const ws = CompositorService.workspaces.get(i);
+            if (!ws) continue;
+            allWorkspaces.push(ws);
+
+            if (!CompositorService.globalWorkspaces && screenName && ws.output && ws.output !== screenName) continue;
+            localWorkspaces.push(ws);
+        }
+
+        const targetList = localWorkspaces.length > 0 ? localWorkspaces : allWorkspaces;
+        if (targetList.length === 0) return false;
+
+        targetList.sort((a, b) => (a.idx || 0) - (b.idx || 0));
+
+        let current = targetList.findIndex(ws => ws.isFocused === true);
+        if (current < 0) current = 0;
+
+        let next = (current + offset) % targetList.length;
+        if (next < 0) next = targetList.length - 1;
+
+        const targetWorkspace = targetList[next];
+        if (!targetWorkspace) return false;
+
+        CompositorService.switchToWorkspace(targetWorkspace);
+        return true;
+    }
+
+    function handleDockWheel(deltaY, screenObj) {
+        if (!workspaceScrollEnabled || deltaY === 0) return false;
+
+        const effectiveDelta = -deltaY;
+        workspaceWheelAccumulator += effectiveDelta;
+
+        let switched = false;
+
+        while (workspaceWheelAccumulator >= 120) {
+            switched = switchWorkspaceByOffset(1, screenObj) || switched;
+            workspaceWheelAccumulator -= 120;
+        }
+
+        while (workspaceWheelAccumulator <= -120) {
+            switched = switchWorkspaceByOffset(-1, screenObj) || switched;
+            workspaceWheelAccumulator += 120;
+        }
+
+        return switched;
     }
 
     Timer {
@@ -399,6 +457,14 @@ Item {
 
                 DragGhost {
                     dock: root
+                }
+
+                WheelHandler {
+                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    onWheel: event => {
+                        const deltaY = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
+                        event.accepted = root.handleDockWheel(deltaY, dockScreen);
+                    }
                 }
             }
         }

@@ -38,6 +38,7 @@ A vertical dock plugin for Noctalia shell with pinned apps synced from the launc
 - Running applications indicator on dock items
 - Drag and drop to reorder pinned apps
 - Launcher button at the bottom of the dock
+- Scroll on dock background to switch workspaces via `CompositorService.switchToWorkspace`
 - Uses shell launcher behavior (`customLaunchPrefix`, `app2unit`, terminal command fallback)
 
 ## Settings
@@ -49,6 +50,7 @@ Available in plugin settings:
 - Spacing between buttons
 - Icon inset
 - Background opacity
+- Workspace switch on scroll
 
 ## Notes
 
