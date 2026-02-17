@@ -12,6 +12,24 @@ A vertical dock plugin for Noctalia with pinned apps synced from the launcher. I
 - Plugin id: `noctalia-dock-plugin`
 - Entry points: `Main.qml`, `Settings.qml`
 
+## Installation
+
+1. Clone this repository:
+
+   ```bash
+   git clone https://github.com/DFSko/noctalia-dock-plugin.git
+   ```
+
+2. Copy the plugin directory to your Noctalia plugins path:
+
+   ```bash
+   mkdir -p ~/.config/noctalia/plugins
+   cp -r noctalia-dock-plugin ~/.config/noctalia/plugins/noctalia-dock-plugin
+   ```
+
+3. Restart `noctalia-shell` (or relogin) so the plugin is loaded.
+4. Open Noctalia plugin settings and enable `noctalia-dock-plugin`.
+
 ## Features
 
 - Left-side vertical dock with exclusive panel space
