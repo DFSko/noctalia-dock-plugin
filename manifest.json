@@ -1,0 +1,29 @@
+{
+  "id": "noctalia-dock-plugin",
+  "name": "noctalia-dock-plugin",
+  "version": "1.0.0",
+  "minNoctaliaVersion": "4.1.2",
+  "author": "dfs",
+  "license": "MIT",
+  "description": "Vertical side dock synced with launcher pinned apps.",
+  "tags": [
+    "Desktop",
+    "Launcher"
+  ],
+  "entryPoints": {
+    "main": "Main.qml",
+    "settings": "Settings.qml"
+  },
+  "dependencies": {
+    "plugins": []
+  },
+  "metadata": {
+    "defaultSettings": {
+      "enabled": true,
+      "iconSize": 46,
+      "spacing": 10,
+      "iconInset": 2,
+      "backgroundOpacity": 0.78
+    }
+  }
+}
