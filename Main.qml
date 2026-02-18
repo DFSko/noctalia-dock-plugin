@@ -250,9 +250,15 @@ Item {
     }
 
     function focusApp(appId) {
-        const toplevel = getPreferredToplevel(appId);
-        if (!toplevel) return false;
-        toplevel.activate();
+        const matches = findMatchingToplevels(appId);
+        if (matches.length === 0) return false;
+        const active = ToplevelManager?.activeToplevel;
+        if (active && matches.includes(active)) {
+            const idx = matches.indexOf(active);
+            matches[(idx + 1) % matches.length].activate();
+        } else {
+            matches[0].activate();
+        }
         return true;
     }
 
