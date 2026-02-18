@@ -34,6 +34,24 @@ Item {
     property string notificationShakeAppKey: ''
     property int _prevNotifCount: 0
     property real workspaceWheelAccumulator: 0
+    property var unpinnedRunningApps: []
+
+    function updateUnpinnedRunningApps() {
+        const toplevels = ToplevelManager.toplevels.values || [];
+        const seen = new Set();
+        const result = [];
+        for (let i = 0; i < toplevels.length; i++) {
+            const t = toplevels[i];
+            if (!t || !t.appId) continue;
+            const key = AppUtils.normalizeAppKey(t.appId);
+            if (seen.has(key)) continue;
+            seen.add(key);
+            const pinnedArr = Settings.data.appLauncher.pinnedApps || [];
+            if (pinnedArr.some(p => AppUtils.appIdsMatch(p, t.appId))) continue;
+            result.push(t.appId);
+        }
+        unpinnedRunningApps = result;
+    }
 
     function markLaunchFeedback(appId) {
         launchFeedbackAppKey = AppUtils.normalizeAppKey(appId);
@@ -124,6 +142,13 @@ Item {
         repeat: false
         onTriggered: root.notificationShakeAppKey = ''
     }
+
+    Connections {
+        target: ToplevelManager.toplevels
+        function onValuesChanged() { root.updateUnpinnedRunningApps() }
+    }
+
+    onPinnedAppsChanged: updateUnpinnedRunningApps()
 
     Connections {
         target: NotificationService.activeList
@@ -399,6 +424,26 @@ Item {
                             appId: String(modelData)
                             screen: dockScreen
                             dock: root
+                        }
+                    }
+
+                    Rectangle {
+                        width: root.iconSize * 0.6
+                        height: 1
+                        color: Qt.alpha(Color.mOutline, 0.65)
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible: root.unpinnedRunningApps.length > 0 && root.pinnedApps.length > 0
+                    }
+
+                    Repeater {
+                        model: root.unpinnedRunningApps
+
+                        delegate: DockButton {
+                            required property var modelData
+                            appId: String(modelData)
+                            screen: dockScreen
+                            dock: root
+                            isPinnedEntry: false
                         }
                     }
                 }

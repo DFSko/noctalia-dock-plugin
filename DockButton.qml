@@ -13,6 +13,7 @@ Item {
     required property var screen
     required property var dock
 
+    property bool isPinnedEntry: true
     property bool hovering: !contextMenu.visible && buttonArea.containsMouse && !isDragPlaceholder
     readonly property bool isDragPlaceholder: dock.dragActive && AppUtils.normalizeAppKey(dock.dragAppId) === AppUtils.normalizeAppKey(appId)
     readonly property string iconSource: ThemeIcons.iconForAppId(AppUtils.normalizeDesktopId(appId).toLowerCase())
@@ -224,13 +225,15 @@ Item {
         id: buttonArea
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.RightButton
+        acceptedButtons: dockButton.isPinnedEntry ? Qt.RightButton : (Qt.RightButton | Qt.LeftButton)
         cursorShape: Qt.PointingHandCursor
 
         onClicked: mouse => {
             if (mouse.button === Qt.RightButton) {
                 contextMenu.model = dockButton.buildContextModel();
                 PanelService.showContextMenu(contextMenu, contextAnchor, dockButton.screen);
+            } else if (mouse.button === Qt.LeftButton) {
+                dock.activateOrLaunch(dockButton.appId);
             }
         }
     }
