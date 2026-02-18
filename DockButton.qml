@@ -19,6 +19,9 @@ Item {
     readonly property int runningCount: Math.min(3, dock.findMatchingToplevels(appId).length)
     readonly property bool isRunning: runningCount > 0
     readonly property bool isLaunchPending: !isRunning && dock.launchFeedbackAppKey !== '' && dock.launchFeedbackAppKey === AppUtils.normalizeAppKey(appId)
+    readonly property bool isShaking: dock.notificationShakeAppKey !== ''
+        && dock.notificationShakeAppKey === AppUtils.normalizeAppKey(appId)
+        && !isDragPlaceholder
     property var desktopActions: []
 
     width: dock.iconSize + dock.buttonPadding
@@ -160,12 +163,33 @@ Item {
     }
 
     Rectangle {
+        id: iconContainer
         width: dock.iconSize
         height: dock.iconSize
         anchors.centerIn: parent
         radius: Style.iRadiusM
         color: 'transparent'
         clip: true
+        transformOrigin: Item.Center
+
+        SequentialAnimation on rotation {
+            running: dockButton.isShaking
+            loops: 2
+
+            NumberAnimation { from: 0; to: 45; duration: 65; easing.type: Easing.OutCubic }
+            NumberAnimation { from: 45; to: -45; duration: 135; easing.type: Easing.InOutCubic }
+            NumberAnimation { from: -45; to: 25; duration: 115; easing.type: Easing.InOutCubic }
+            NumberAnimation { from: 25; to: -25; duration: 115; easing.type: Easing.InOutCubic }
+            NumberAnimation { from: -25; to: 0; duration: 70; easing.type: Easing.InCubic }
+        }
+
+        SequentialAnimation on scale {
+            running: dockButton.isShaking
+            loops: 1
+
+            NumberAnimation { from: 1.0; to: 1.5; duration: 500; easing.type: Easing.OutCubic }
+            NumberAnimation { from: 1.5; to: 1.0; duration: 500; easing.type: Easing.InCubic }
+        }
 
         IconImage {
             id: appIcon

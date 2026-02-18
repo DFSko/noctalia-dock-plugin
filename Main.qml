@@ -31,6 +31,8 @@ Item {
     property string leftPressedAppId: ''
     property real dragColumnY: 0
     property string launchFeedbackAppKey: ''
+    property string notificationShakeAppKey: ''
+    property int _prevNotifCount: 0
     property real workspaceWheelAccumulator: 0
 
     function markLaunchFeedback(appId) {
@@ -40,6 +42,17 @@ Item {
 
     function clearLaunchFeedback() {
         launchFeedbackAppKey = '';
+    }
+
+    function triggerNotificationShake(notifAppName) {
+        const arr = Settings.data.appLauncher.pinnedApps || [];
+        for (let i = 0; i < arr.length; i++) {
+            if (AppUtils.appIdsMatch(notifAppName, arr[i])) {
+                notificationShakeAppKey = AppUtils.normalizeAppKey(arr[i]);
+                notificationShakeTimer.restart();
+                return;
+            }
+        }
     }
 
     function switchWorkspaceByOffset(offset, screenObj) {
@@ -103,6 +116,26 @@ Item {
         interval: 1600
         repeat: false
         onTriggered: root.clearLaunchFeedback()
+    }
+
+    Timer {
+        id: notificationShakeTimer
+        interval: 1000
+        repeat: false
+        onTriggered: root.notificationShakeAppKey = ''
+    }
+
+    Connections {
+        target: NotificationService.activeList
+        function onCountChanged() {
+            const count = NotificationService.activeList.count;
+            if (count > root._prevNotifCount && count > 0) {
+                const notif = NotificationService.activeList.get(0);
+                if (notif && notif.appName)
+                    root.triggerNotificationShake(notif.appName);
+            }
+            root._prevNotifCount = count;
+        }
     }
 
 
