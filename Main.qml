@@ -165,6 +165,8 @@ Item {
 
 
     function getBarInsetForScreen(screenObj, edge) {
+        if (edge !== 'left' && edge !== 'right') return 0;
+
         const screenName = screenObj?.name;
         const barEdge = Settings.getBarPositionForScreen(screenName);
         if (barEdge !== edge) return 0;
@@ -175,10 +177,8 @@ Item {
 
         const barFloating = Settings.data.bar.floating || false;
         const barHeight = Style.getBarHeightForScreen(screenName);
-        const marginV = barFloating ? Math.ceil(Settings.data.bar.marginVertical || 0) : 0;
         const marginH = barFloating ? Math.ceil(Settings.data.bar.marginHorizontal || 0) : 0;
 
-        if (edge === 'top' || edge === 'bottom') return barHeight + marginV;
         return barHeight + marginH;
     }
 
@@ -380,10 +380,10 @@ Item {
             }
 
             margins {
-                top: root.getBarInsetForScreen(dockScreen, 'top')
+                top: 0
                 right: root.getBarInsetForScreen(dockScreen, 'right')
                 left: root.getBarInsetForScreen(dockScreen, 'left')
-                bottom: root.getBarInsetForScreen(dockScreen, 'bottom')
+                bottom: 0
             }
 
             WlrLayershell.layer: WlrLayer.Top
