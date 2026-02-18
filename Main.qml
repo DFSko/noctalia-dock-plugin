@@ -487,7 +487,7 @@ Item {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        acceptedButtons: (root.dragActive || root.leftPressActive || root.ctrlHeld) ? Qt.LeftButton : Qt.NoButton
+                        acceptedButtons: (root.dragActive || root.leftPressActive) ? Qt.NoButton : Qt.LeftButton
                         onClicked: PanelService.toggleLauncher(dockScreen)
                     }
                 }
