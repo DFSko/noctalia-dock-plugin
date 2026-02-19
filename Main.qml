@@ -31,6 +31,7 @@ Item {
     property string leftPressedAppId: ''
     property real dragColumnY: 0
     property string launchFeedbackAppKey: ''
+    property string pendingFocusAppId: ''
     property string notificationShakeAppKey: ''
     property int _prevNotifCount: 0
     property real workspaceWheelAccumulator: 0
@@ -60,6 +61,29 @@ Item {
 
     function clearLaunchFeedback() {
         launchFeedbackAppKey = '';
+    }
+
+    function scheduleFocusAfterLaunch(appId) {
+        const target = AppUtils.normalizeDesktopId(appId);
+        if (!target) return;
+
+        pendingFocusAppId = target;
+        tryFocusPendingLaunch();
+    }
+
+    function clearPendingLaunchFocus() {
+        pendingFocusAppId = '';
+    }
+
+    function tryFocusPendingLaunch() {
+        if (!pendingFocusAppId) return false;
+
+        const matches = findMatchingToplevels(pendingFocusAppId);
+        if (matches.length === 0) return false;
+
+        matches[0].activate();
+        clearPendingLaunchFocus();
+        return true;
     }
 
     function triggerNotificationShake(notifAppName) {
@@ -145,7 +169,10 @@ Item {
 
     Connections {
         target: ToplevelManager.toplevels
-        function onValuesChanged() { root.updateUnpinnedRunningApps() }
+        function onValuesChanged() {
+            root.updateUnpinnedRunningApps();
+            root.tryFocusPendingLaunch();
+        }
     }
 
     onPinnedAppsChanged: updateUnpinnedRunningApps()
@@ -195,6 +222,8 @@ Item {
             return false;
         }
 
+        let launched = false;
+
         if (Settings.data.appLauncher.customLaunchPrefixEnabled && Settings.data.appLauncher.customLaunchPrefix) {
             const prefix = Settings.data.appLauncher.customLaunchPrefix.split(' ');
 
@@ -206,28 +235,33 @@ Item {
                 const command = prefix.concat(app.command || []);
                 Quickshell.execDetached(command);
             }
-            return true;
+            launched = true;
         }
 
-        if (Settings.data.appLauncher.useApp2Unit && ProgramCheckerService.app2unitAvailable && app.id) {
+        if (!launched && Settings.data.appLauncher.useApp2Unit && ProgramCheckerService.app2unitAvailable && app.id) {
             if (app.runInTerminal) {
                 Quickshell.execDetached(['app2unit', '--', app.id + '.desktop']);
             } else {
                 Quickshell.execDetached(['app2unit', '--'].concat(app.command || []));
             }
-            return true;
+            launched = true;
         }
 
-        if (app.runInTerminal) {
+        if (!launched && app.runInTerminal) {
             const terminal = Settings.data.appLauncher.terminalCommand.split(' ');
             const command = terminal.concat(app.command || []);
             CompositorService.spawn(command);
-            return true;
-        } else if (app.command && app.command.length > 0) {
+            launched = true;
+        } else if (!launched && app.command && app.command.length > 0) {
             CompositorService.spawn(app.command);
-            return true;
-        } else if (app.execute) {
+            launched = true;
+        } else if (!launched && app.execute) {
             app.execute();
+            launched = true;
+        }
+
+        if (launched) {
+            scheduleFocusAfterLaunch(normalized);
             return true;
         }
 
