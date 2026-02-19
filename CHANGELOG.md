@@ -1,0 +1,21 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+## [1.0.1] - 2026-02-19
+
+### Changed
+- Improved public plugin metadata in `manifest.json` (`name`, `version`, `description`).
+- Updated `README.md` with installation via repository URL in Noctalia Control Center.
+- Added versioning and release notes guidance to `README.md`.
+
+## [1.0.0] - 2026-02-18
+
+### Added
+- Initial public release of `noctalia-dock-plugin`.
+- Vertical dock with launcher-synced pinned apps.
+- Dock interactions (focus/launch/reorder), running indicators, and workspace scroll switching.
+- Plugin settings support and screenshot/docs.

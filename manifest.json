@@ -1,11 +1,11 @@
 {
   "id": "noctalia-dock-plugin",
-  "name": "noctalia-dock-plugin",
-  "version": "1.0.0",
-  "minNoctaliaVersion": "4.1.2",
+  "name": "Noctalia Dock (Dash to Dock style)",
+  "version": "1.0.1",
+  "minNoctaliaVersion": "4.5.0",
   "author": "dfs",
   "license": "MIT",
-  "description": "Vertical side dock synced with launcher pinned apps.",
+  "description": "Vertical side dock for Noctalia Shell with launcher-synced pinned apps.",
   "tags": [
     "Desktop",
     "Launcher"
