@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.2] - 2026-02-21
+
+### Changed
+- Simplified dock internals by extracting controller/logic modules and cleaning drag handlers.
+- Improved workspace selection flow and unpinned app filtering behavior.
+- Consolidated settings slider row and default fallback handling.
+
+### Fixed
+- Corrected dock app tooltip placement to appear on the right side of the dock.
+- Restricted dock hit area to the button lane for more accurate interaction.
+- Fixed a drag controller regression introduced during refactoring.
+
 ## [1.0.1] - 2026-02-19
 
 ### Changed
