@@ -1,37 +1,36 @@
-.import "normalizeAppKey.js" as NormalizeAppKey
-.import "normalizeDesktopId.js" as NormalizeDesktopId
+.import "appIdLogic.js" as AppIdLogic
 
 function isAppPinned(pinnedApps, appId) {
-    const target = NormalizeAppKey.normalizeAppKey(appId);
+    const target = AppIdLogic.normalizeAppKey(appId);
     if (!target) return false;
 
     const arr = pinnedApps || [];
-    return arr.some(p => NormalizeAppKey.normalizeAppKey(p) === target);
+    return arr.some(p => AppIdLogic.normalizeAppKey(p) === target);
 }
 
 function togglePinnedApp(pinnedApps, appId) {
-    const target = NormalizeAppKey.normalizeAppKey(appId);
+    const target = AppIdLogic.normalizeAppKey(appId);
     if (!target) return null;
 
     const arr = (pinnedApps || []).slice();
-    const idx = arr.findIndex(p => NormalizeAppKey.normalizeAppKey(p) === target);
+    const idx = arr.findIndex(p => AppIdLogic.normalizeAppKey(p) === target);
     if (idx >= 0) {
         arr.splice(idx, 1);
         return arr;
     }
 
-    const normalized = NormalizeDesktopId.normalizeDesktopId(appId);
+    const normalized = AppIdLogic.normalizeDesktopId(appId);
     if (!normalized) return null;
     arr.push(normalized);
     return arr;
 }
 
 function indexOfPinnedApp(pinnedApps, appId) {
-    const target = NormalizeAppKey.normalizeAppKey(appId);
+    const target = AppIdLogic.normalizeAppKey(appId);
     if (!target) return -1;
 
     const arr = pinnedApps || [];
-    return arr.findIndex(p => NormalizeAppKey.normalizeAppKey(p) === target);
+    return arr.findIndex(p => AppIdLogic.normalizeAppKey(p) === target);
 }
 
 function movePinnedAppToIndex(pinnedApps, appId, targetIndex) {
@@ -52,7 +51,7 @@ function movePinnedAppToIndex(pinnedApps, appId, targetIndex) {
 }
 
 function beginDragState(appId, leftPressColumnY) {
-    const dragAppId = NormalizeDesktopId.normalizeDesktopId(appId);
+    const dragAppId = AppIdLogic.normalizeDesktopId(appId);
     return {
         dragAppId: dragAppId,
         dragColumnY: leftPressColumnY,

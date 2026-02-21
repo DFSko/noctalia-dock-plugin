@@ -4,9 +4,7 @@ import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
 import qs.Services.UI
-import "utils/normalizeAppKey.js" as NormalizeAppKey
-import "utils/normalizeDesktopId.js" as NormalizeDesktopId
-import "utils/displayNameFor.js" as DisplayNameFor
+import "utils/appIdLogic.js" as AppIdLogic
 import "utils/dockButtonLogic.js" as DockButtonLogic
 
 Item {
@@ -18,13 +16,13 @@ Item {
 
     property bool isPinnedEntry: true
     property bool hovering: !contextMenu.visible && buttonArea.containsMouse && !isDragPlaceholder
-    readonly property bool isDragPlaceholder: dock.dragActive && NormalizeAppKey.normalizeAppKey(dock.dragAppId) === NormalizeAppKey.normalizeAppKey(appId)
-    readonly property string iconSource: ThemeIcons.iconForAppId(NormalizeDesktopId.normalizeDesktopId(appId).toLowerCase())
+    readonly property bool isDragPlaceholder: dock.dragCtrl.dragActive && AppIdLogic.normalizeAppKey(dock.dragCtrl.dragAppId) === AppIdLogic.normalizeAppKey(appId)
+    readonly property string iconSource: ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(appId).toLowerCase())
     readonly property int runningCount: Math.min(3, dock.launchCtrl.findMatchingToplevels(appId).length)
     readonly property bool isRunning: runningCount > 0
-    readonly property bool isLaunchPending: !isRunning && dock.launchFeedbackAppKey !== '' && dock.launchFeedbackAppKey === NormalizeAppKey.normalizeAppKey(appId)
+    readonly property bool isLaunchPending: !isRunning && dock.launchCtrl.launchFeedbackAppKey !== '' && dock.launchCtrl.launchFeedbackAppKey === AppIdLogic.normalizeAppKey(appId)
     readonly property bool isShaking: dock.notificationShakeAppKey !== ''
-        && dock.notificationShakeAppKey === NormalizeAppKey.normalizeAppKey(appId)
+        && dock.notificationShakeAppKey === AppIdLogic.normalizeAppKey(appId)
         && !isDragPlaceholder
     property var desktopActions: []
 
@@ -48,22 +46,22 @@ Item {
     }
 
     function triggerMenuAction(actionKey) {
-        if (actionKey === 'launch') {
-            if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
+        const handlers = {
+            launch: () => {
+                if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
+            },
+            focus: () => dock.launchCtrl.focusApp(appId),
+            pin: () => dock.dragCtrl.togglePin(appId),
+            unpin: () => dock.dragCtrl.togglePin(appId),
+            close: () => dock.launchCtrl.closeApp(appId)
+        };
+
+        const handler = handlers[actionKey];
+        if (handler) {
+            handler();
             return;
         }
-        if (actionKey === 'focus') {
-            dock.launchCtrl.focusApp(appId);
-            return;
-        }
-        if (actionKey === 'pin' || actionKey === 'unpin') {
-            dock.dragCtrl.togglePin(appId);
-            return;
-        }
-        if (actionKey === 'close') {
-            dock.launchCtrl.closeApp(appId);
-            return;
-        }
+
         const idx = DockButtonLogic.desktopActionIndex(actionKey);
         if (idx >= 0) {
             const action = desktopActions[idx];
@@ -192,7 +190,7 @@ Item {
         NText {
             anchors.centerIn: parent
             visible: !appIcon.visible && !dockButton.isDragPlaceholder
-            text: DisplayNameFor.displayNameFor(dockButton.appId)
+            text: AppIdLogic.displayNameFor(dockButton.appId)
             color: Color.mOnSurface
             pointSize: Math.max(10, dock.iconSize * 0.26)
             font.weight: Style.fontWeightBold

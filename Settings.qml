@@ -131,12 +131,9 @@ ColumnLayout {
             workspaceScrollEnabled: root.valueWorkspaceScrollEnabled
         });
 
-        pluginApi.pluginSettings.enabled = payload.enabled;
-        pluginApi.pluginSettings.iconSize = payload.iconSize;
-        pluginApi.pluginSettings.spacing = payload.spacing;
-        pluginApi.pluginSettings.iconInset = payload.iconInset;
-        pluginApi.pluginSettings.backgroundOpacity = payload.backgroundOpacity;
-        pluginApi.pluginSettings.workspaceScrollEnabled = payload.workspaceScrollEnabled;
+        for (const key in payload) {
+            pluginApi.pluginSettings[key] = payload[key];
+        }
 
         pluginApi.saveSettings();
     }

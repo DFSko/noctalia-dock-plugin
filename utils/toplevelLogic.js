@@ -1,11 +1,11 @@
-.import "appIdsMatch.js" as AppIdsMatch
+.import "appIdLogic.js" as AppIdLogic
 
 function findMatchingToplevels(toplevels, appId) {
     const target = String(appId || '').trim();
     if (!target) return [];
 
     const values = toplevels || [];
-    return values.filter(t => AppIdsMatch.appIdsMatch(target, t?.appId));
+    return values.filter(t => AppIdLogic.appIdsMatch(target, t?.appId));
 }
 
 function preferredToplevel(matches, activeToplevel) {

@@ -2,8 +2,7 @@ import QtQuick
 import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
-import "utils/normalizeDesktopId.js" as NormalizeDesktopId
-import "utils/displayNameFor.js" as DisplayNameFor
+import "utils/appIdLogic.js" as AppIdLogic
 
 Item {
     id: dragGhost
@@ -11,13 +10,13 @@ Item {
     required property var dock
 
     z: 90
-    visible: dock.dragActive && dock.dragAppId !== ''
+    visible: dock.dragCtrl.dragActive && dock.dragCtrl.dragAppId !== ''
     width: dock.iconSize + dock.buttonPadding
     height: dock.iconSize + dock.buttonPadding
     x: (parent.width - width) * 0.5
-    y: Math.max(0, Math.min(parent.height - height, dock.dragColumnY - height * 0.5))
-    opacity: dock.dragActive ? 0.94 : 0
-    scale: dock.dragActive ? 1.06 : 0.97
+    y: Math.max(0, Math.min(parent.height - height, dock.dragCtrl.dragColumnY - height * 0.5))
+    opacity: dock.dragCtrl.dragActive ? 0.94 : 0
+    scale: dock.dragCtrl.dragActive ? 1.06 : 0.97
 
     Behavior on y {
         NumberAnimation {
@@ -58,7 +57,7 @@ Item {
             id: dragGhostIcon
             anchors.fill: parent
             anchors.margins: dock.iconInset
-            source: ThemeIcons.iconForAppId(NormalizeDesktopId.normalizeDesktopId(dock.dragAppId).toLowerCase())
+            source: ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(dock.dragCtrl.dragAppId).toLowerCase())
             visible: source.toString() !== ''
             smooth: true
             asynchronous: true
@@ -67,7 +66,7 @@ Item {
         NText {
             anchors.centerIn: parent
             visible: !dragGhostIcon.visible
-            text: DisplayNameFor.displayNameFor(dock.dragAppId)
+            text: AppIdLogic.displayNameFor(dock.dragCtrl.dragAppId)
             color: Color.mOnSurface
             pointSize: Math.max(10, dock.iconSize * 0.26)
             font.weight: Style.fontWeightBold

@@ -11,6 +11,9 @@ PanelWindow {
 
     required property var dock
     required property var dockScreen
+    readonly property var dragCtrlRef: dock.dragCtrl
+    readonly property var launchCtrlRef: dock.launchCtrl
+    readonly property var workspaceCtrlRef: dock.workspaceCtrl
 
     screen: dockScreen
     visible: dock.enabled
@@ -131,7 +134,7 @@ PanelWindow {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                acceptedButtons: (dock.dragActive || dock.leftPressActive) ? Qt.NoButton : Qt.LeftButton
+                acceptedButtons: (dragCtrlRef.dragActive || dragCtrlRef.leftPressActive) ? Qt.NoButton : Qt.LeftButton
                 onClicked: PanelService.toggleLauncher(dockScreen)
             }
         }
@@ -152,53 +155,53 @@ PanelWindow {
                 const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
                 const arr = dock.pinnedApps;
                 if (arr.length === 0) {
-                    dock.dragCtrl.clearPointerState();
+                    dragCtrlRef.clearPointerState();
                     return;
                 }
 
-                const index = dock.dragCtrl.indexAtColumnY(point.y, arr.length);
+                const index = dragCtrlRef.indexAtColumnY(point.y, arr.length);
                 if (index < 0) {
-                    dock.dragCtrl.clearPointerState();
+                    dragCtrlRef.clearPointerState();
                     return;
                 }
 
-                dock.dragCtrl.leftPressActive = true;
-                dock.dragCtrl.leftPressColumnY = point.y;
-                dock.dragCtrl.dragColumnY = point.y;
-                dock.dragCtrl.leftPressedAppId = String(arr[index] || '');
+                dragCtrlRef.leftPressActive = true;
+                dragCtrlRef.leftPressColumnY = point.y;
+                dragCtrlRef.dragColumnY = point.y;
+                dragCtrlRef.leftPressedAppId = String(arr[index] || '');
             }
 
             onPositionChanged: mouse => {
-                if (!dock.dragCtrl.leftPressActive) return;
+                if (!dragCtrlRef.leftPressActive) return;
                 const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
-                dock.dragCtrl.dragColumnY = point.y;
+                dragCtrlRef.dragColumnY = point.y;
 
-                if (!dock.dragCtrl.dragActive) {
-                    const dragDistance = Math.abs(point.y - dock.dragCtrl.leftPressColumnY);
-                    if (dragDistance >= Qt.styleHints.startDragDistance && dock.dragCtrl.leftPressedAppId) {
-                        dock.dragCtrl.beginDrag(dock.dragCtrl.leftPressedAppId);
+                if (!dragCtrlRef.dragActive) {
+                    const dragDistance = Math.abs(point.y - dragCtrlRef.leftPressColumnY);
+                    if (dragDistance >= Qt.styleHints.startDragDistance && dragCtrlRef.leftPressedAppId) {
+                        dragCtrlRef.beginDrag(dragCtrlRef.leftPressedAppId);
                     }
                 }
 
-                if (dock.dragCtrl.dragActive) {
-                    dock.dragCtrl.updateDragTargetFromColumnY(point.y);
+                if (dragCtrlRef.dragActive) {
+                    dragCtrlRef.updateDragTargetFromColumnY(point.y);
                 }
             }
 
             onReleased: {
-                if (dock.dragCtrl.dragActive) {
-                    dock.dragCtrl.endDrag();
-                    dock.dragCtrl.clearPointerState();
+                if (dragCtrlRef.dragActive) {
+                    dragCtrlRef.endDrag();
+                    dragCtrlRef.clearPointerState();
                     return;
                 }
-                const appId = dock.dragCtrl.leftPressedAppId;
-                dock.dragCtrl.clearPointerState();
-                if (appId) dock.launchCtrl.activateOrLaunch(appId);
+                const appId = dragCtrlRef.leftPressedAppId;
+                dragCtrlRef.clearPointerState();
+                if (appId) launchCtrlRef.activateOrLaunch(appId);
             }
 
             onCanceled: {
-                dock.dragCtrl.endDrag();
-                dock.dragCtrl.clearPointerState();
+                dragCtrlRef.endDrag();
+                dragCtrlRef.clearPointerState();
             }
         }
 
@@ -210,7 +213,7 @@ PanelWindow {
             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
             onWheel: event => {
                 const deltaY = event.angleDelta.y !== 0 ? event.angleDelta.y : event.pixelDelta.y;
-                event.accepted = dock.workspaceCtrl.handleDockWheel(deltaY, dockScreen);
+                event.accepted = workspaceCtrlRef.handleDockWheel(deltaY, dockScreen);
             }
         }
     }

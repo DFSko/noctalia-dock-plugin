@@ -5,8 +5,7 @@ import qs.Commons
 import qs.Services.Compositor
 import qs.Services.System
 import qs.Services.UI
-import "utils/normalizeAppKey.js" as NormalizeAppKey
-import "utils/normalizeDesktopId.js" as NormalizeDesktopId
+import "utils/appIdLogic.js" as AppIdLogic
 import "utils/toplevelLogic.js" as ToplevelLogic
 import "utils/launchPlanLogic.js" as LaunchPlanLogic
 
@@ -19,7 +18,7 @@ Item {
     property string pendingFocusAppId: ''
 
     function markLaunchFeedback(appId) {
-        launchFeedbackAppKey = NormalizeAppKey.normalizeAppKey(appId);
+        launchFeedbackAppKey = AppIdLogic.normalizeAppKey(appId);
         launchFeedbackTimer.restart();
     }
 
@@ -28,7 +27,7 @@ Item {
     }
 
     function scheduleFocusAfterLaunch(appId) {
-        const target = NormalizeDesktopId.normalizeDesktopId(appId);
+        const target = AppIdLogic.normalizeDesktopId(appId);
         if (!target) return;
 
         pendingFocusAppId = target;
@@ -54,11 +53,6 @@ Item {
         return true;
     }
 
-    function getPreferredToplevel(appId) {
-        const matches = findMatchingToplevels(appId);
-        return ToplevelLogic.preferredToplevel(matches, ToplevelManager?.activeToplevel);
-    }
-
     function focusApp(appId) {
         const matches = findMatchingToplevels(appId);
         const target = ToplevelLogic.nextFocusToplevel(matches, ToplevelManager?.activeToplevel);
@@ -68,14 +62,17 @@ Item {
     }
 
     function closeApp(appId) {
-        const toplevel = getPreferredToplevel(appId);
+        const toplevel = ToplevelLogic.preferredToplevel(
+            findMatchingToplevels(appId),
+            ToplevelManager?.activeToplevel
+        );
         if (!toplevel) return false;
         toplevel.close();
         return true;
     }
 
     function launchApp(appId) {
-        const normalized = NormalizeDesktopId.normalizeDesktopId(appId);
+        const normalized = AppIdLogic.normalizeDesktopId(appId);
         if (!normalized) {
             ToastService.showWarning('noctalia-dock-plugin: empty app id');
             return false;

@@ -1,5 +1,4 @@
-.import "normalizeAppKey.js" as NormalizeAppKey
-.import "appIdsMatch.js" as AppIdsMatch
+.import "appIdLogic.js" as AppIdLogic
 
 function collectUnpinnedRunningApps(toplevels, pinnedApps) {
     const values = toplevels || [];
@@ -11,11 +10,11 @@ function collectUnpinnedRunningApps(toplevels, pinnedApps) {
         const t = values[i];
         if (!t || !t.appId) continue;
 
-        const key = NormalizeAppKey.normalizeAppKey(t.appId);
+        const key = AppIdLogic.normalizeAppKey(t.appId);
         if (seen.has(key)) continue;
         seen.add(key);
 
-        if (pinned.some(p => AppIdsMatch.appIdsMatch(p, t.appId))) continue;
+        if (pinned.some(p => AppIdLogic.appIdsMatch(p, t.appId))) continue;
         result.push(t.appId);
     }
 
@@ -25,8 +24,8 @@ function collectUnpinnedRunningApps(toplevels, pinnedApps) {
 function notificationShakeAppKey(notifAppName, pinnedApps) {
     const pinned = pinnedApps || [];
     for (let i = 0; i < pinned.length; i++) {
-        if (AppIdsMatch.appIdsMatch(notifAppName, pinned[i])) {
-            return NormalizeAppKey.normalizeAppKey(pinned[i]);
+        if (AppIdLogic.appIdsMatch(notifAppName, pinned[i])) {
+            return AppIdLogic.normalizeAppKey(pinned[i]);
         }
     }
     return '';

@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
+import qs.Services.System
 import qs.Services.UI
 import "utils/mainLogic.js" as MainLogic
 
@@ -25,14 +26,6 @@ Item {
     readonly property DockLaunchController launchCtrl: launchController
     readonly property DockDragController dragCtrl: dragController
     readonly property DockWorkspaceController workspaceCtrl: workspaceController
-    property alias dragActive: dragController.dragActive
-    property alias dragAppId: dragController.dragAppId
-    property alias leftPressActive: dragController.leftPressActive
-    property alias leftPressColumnY: dragController.leftPressColumnY
-    property alias leftPressedAppId: dragController.leftPressedAppId
-    property alias dragColumnY: dragController.dragColumnY
-    property alias launchFeedbackAppKey: launchController.launchFeedbackAppKey
-    property alias pendingFocusAppId: launchController.pendingFocusAppId
     property string notificationShakeAppKey: ''
     property int _prevNotifCount: 0
     property var unpinnedRunningApps: []
