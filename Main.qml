@@ -15,13 +15,24 @@ Item {
 
     readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-    readonly property bool enabled: pluginApi?.pluginSettings?.enabled ?? defaults.enabled ?? true
-    readonly property int iconSize: pluginApi?.pluginSettings?.iconSize ?? defaults.iconSize ?? 46
-    readonly property int spacing: pluginApi?.pluginSettings?.spacing ?? defaults.spacing ?? 10
-    readonly property int iconInset: pluginApi?.pluginSettings?.iconInset ?? defaults.iconInset ?? 2
+    function settingValue(key, fallback) {
+        const settings = pluginApi?.pluginSettings;
+        const configured = settings ? settings[key] : undefined;
+        if (configured !== undefined && configured !== null) return configured;
+
+        const defaultValue = defaults ? defaults[key] : undefined;
+        if (defaultValue !== undefined && defaultValue !== null) return defaultValue;
+
+        return fallback;
+    }
+
+    readonly property bool enabled: settingValue('enabled', true)
+    readonly property int iconSize: settingValue('iconSize', 46)
+    readonly property int spacing: settingValue('spacing', 10)
+    readonly property int iconInset: settingValue('iconInset', 2)
     readonly property int buttonPadding: Math.max(0, iconInset * 2)
-    readonly property real backgroundOpacity: pluginApi?.pluginSettings?.backgroundOpacity ?? defaults.backgroundOpacity ?? 0.78
-    readonly property bool workspaceScrollEnabled: pluginApi?.pluginSettings?.workspaceScrollEnabled ?? defaults.workspaceScrollEnabled ?? true
+    readonly property real backgroundOpacity: settingValue('backgroundOpacity', 0.78)
+    readonly property bool workspaceScrollEnabled: settingValue('workspaceScrollEnabled', true)
     readonly property var pinnedApps: Settings?.data?.appLauncher?.pinnedApps || []
     readonly property DockLaunchController launchCtrl: launchController
     readonly property DockDragController dragCtrl: dragController

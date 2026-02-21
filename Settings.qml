@@ -28,84 +28,48 @@ ColumnLayout {
         onToggled: checked => root.valueEnabled = checked
     }
 
-    ColumnLayout {
-        spacing: Style.marginXXS
-        Layout.fillWidth: true
-
-        NLabel {
-            label: 'Icon size'
-            description: 'Icon circle size in pixels'
-        }
-
-        NValueSlider {
-            Layout.fillWidth: true
-            from: 24
-            to: 96
-            stepSize: 1
-            value: root.valueIconSize
-            onMoved: value => root.valueIconSize = Math.round(value)
-            text: String(root.valueIconSize)
-        }
+    SettingSliderRow {
+        label: 'Icon size'
+        description: 'Icon circle size in pixels'
+        from: 24
+        to: 96
+        stepSize: 1
+        value: root.valueIconSize
+        text: String(root.valueIconSize)
+        onMoved: value => root.valueIconSize = Math.round(value)
     }
 
-    ColumnLayout {
-        spacing: Style.marginXXS
-        Layout.fillWidth: true
-
-        NLabel {
-            label: 'Spacing'
-            description: 'Space between dock buttons'
-        }
-
-        NValueSlider {
-            Layout.fillWidth: true
-            from: 0
-            to: 30
-            stepSize: 1
-            value: root.valueSpacing
-            onMoved: value => root.valueSpacing = Math.round(value)
-            text: String(root.valueSpacing)
-        }
+    SettingSliderRow {
+        label: 'Spacing'
+        description: 'Space between dock buttons'
+        from: 0
+        to: 30
+        stepSize: 1
+        value: root.valueSpacing
+        text: String(root.valueSpacing)
+        onMoved: value => root.valueSpacing = Math.round(value)
     }
 
-    ColumnLayout {
-        spacing: Style.marginXXS
-        Layout.fillWidth: true
-
-        NLabel {
-            label: 'Icon inset'
-            description: 'Padding around icon inside button'
-        }
-
-        NValueSlider {
-            Layout.fillWidth: true
-            from: 0
-            to: 8
-            stepSize: 1
-            value: root.valueIconInset
-            onMoved: value => root.valueIconInset = Math.round(value)
-            text: String(root.valueIconInset)
-        }
+    SettingSliderRow {
+        label: 'Icon inset'
+        description: 'Padding around icon inside button'
+        from: 0
+        to: 8
+        stepSize: 1
+        value: root.valueIconInset
+        text: String(root.valueIconInset)
+        onMoved: value => root.valueIconInset = Math.round(value)
     }
 
-    ColumnLayout {
-        spacing: Style.marginXXS
-        Layout.fillWidth: true
-
-        NLabel {
-            label: 'Background opacity'
-            description: 'Dock background transparency'
-        }
-
-        NValueSlider {
-            Layout.fillWidth: true
-            from: 0.2
-            to: 1.0
-            stepSize: 0.05
-            value: root.valueOpacity
-            onMoved: value => root.valueOpacity = value
-            text: root.valueOpacity.toFixed(2)
-        }
+    SettingSliderRow {
+        label: 'Background opacity'
+        description: 'Dock background transparency'
+        from: 0.2
+        to: 1.0
+        stepSize: 0.05
+        value: root.valueOpacity
+        text: root.valueOpacity.toFixed(2)
+        onMoved: value => root.valueOpacity = value
     }
 
     NToggle {
