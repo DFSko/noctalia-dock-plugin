@@ -46,20 +46,22 @@ Item {
     }
 
     function triggerMenuAction(actionKey) {
-        const handlers = {
-            launch: () => {
-                if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
-            },
-            focus: () => dock.launchCtrl.focusApp(appId),
-            pin: () => dock.dragCtrl.togglePin(appId),
-            unpin: () => dock.dragCtrl.togglePin(appId),
-            close: () => dock.launchCtrl.closeApp(appId)
-        };
-
-        const handler = handlers[actionKey];
-        if (handler) {
-            handler();
+        switch (actionKey) {
+        case 'launch':
+            if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
             return;
+        case 'focus':
+            dock.launchCtrl.focusApp(appId);
+            return;
+        case 'pin':
+        case 'unpin':
+            dock.dragCtrl.togglePin(appId);
+            return;
+        case 'close':
+            dock.launchCtrl.closeApp(appId);
+            return;
+        default:
+            break;
         }
 
         const idx = DockButtonLogic.desktopActionIndex(actionKey);

@@ -82,4 +82,62 @@ QtObject {
         leftPressColumnY = 0;
         leftPressedAppId = '';
     }
+
+    function resetDragInteraction() {
+        endDrag();
+        clearPointerState();
+    }
+
+    function handlePressAt(columnX, columnY, pinnedApps) {
+        const buttonExtent = dock.iconSize + dock.buttonPadding;
+        if (columnX < 0 || columnX > buttonExtent) {
+            clearPointerState();
+            return false;
+        }
+
+        const arr = pinnedApps || [];
+        const index = indexAtColumnY(columnY, arr.length);
+        if (index < 0) {
+            clearPointerState();
+            return false;
+        }
+
+        leftPressActive = true;
+        leftPressColumnY = columnY;
+        dragColumnY = columnY;
+        leftPressedAppId = String(arr[index] || '');
+        return leftPressedAppId !== '';
+    }
+
+    function handleMoveAt(columnY, startDragDistance) {
+        if (!leftPressActive) return false;
+
+        dragColumnY = columnY;
+
+        if (!dragActive) {
+            const dragDistance = Math.abs(columnY - leftPressColumnY);
+            if (dragDistance >= startDragDistance && leftPressedAppId) {
+                beginDrag(leftPressedAppId);
+            }
+        }
+
+        if (!dragActive) return false;
+        updateDragTargetFromColumnY(columnY);
+        return true;
+    }
+
+    function handleRelease() {
+        if (dragActive) {
+            resetDragInteraction();
+            return '';
+        }
+
+        const appId = leftPressedAppId;
+        clearPointerState();
+        return appId;
+    }
+
+    function handleCancel() {
+        resetDragInteraction();
+    }
 }

@@ -153,62 +153,22 @@ PanelWindow {
 
             onPressed: mouse => {
                 const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
-                const arr = dock.pinnedApps;
-                if (arr.length === 0) {
-                    dragCtrlRef.clearPointerState();
-                    return;
-                }
-
-                // Only treat presses inside the actual button lane as app clicks.
-                const buttonExtent = dock.iconSize + dock.buttonPadding;
-                if (point.x < 0 || point.x > buttonExtent) {
-                    dragCtrlRef.clearPointerState();
-                    return;
-                }
-
-                const index = dragCtrlRef.indexAtColumnY(point.y, arr.length);
-                if (index < 0) {
-                    dragCtrlRef.clearPointerState();
-                    return;
-                }
-
-                dragCtrlRef.leftPressActive = true;
-                dragCtrlRef.leftPressColumnY = point.y;
-                dragCtrlRef.dragColumnY = point.y;
-                dragCtrlRef.leftPressedAppId = String(arr[index] || '');
+                dragCtrlRef.handlePressAt(point.x, point.y, dock.pinnedApps);
             }
 
             onPositionChanged: mouse => {
                 if (!dragCtrlRef.leftPressActive) return;
                 const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
-                dragCtrlRef.dragColumnY = point.y;
-
-                if (!dragCtrlRef.dragActive) {
-                    const dragDistance = Math.abs(point.y - dragCtrlRef.leftPressColumnY);
-                    if (dragDistance >= Qt.styleHints.startDragDistance && dragCtrlRef.leftPressedAppId) {
-                        dragCtrlRef.beginDrag(dragCtrlRef.leftPressedAppId);
-                    }
-                }
-
-                if (dragCtrlRef.dragActive) {
-                    dragCtrlRef.updateDragTargetFromColumnY(point.y);
-                }
+                dragCtrlRef.handleMoveAt(point.y, Qt.styleHints.startDragDistance);
             }
 
             onReleased: {
-                if (dragCtrlRef.dragActive) {
-                    dragCtrlRef.endDrag();
-                    dragCtrlRef.clearPointerState();
-                    return;
-                }
-                const appId = dragCtrlRef.leftPressedAppId;
-                dragCtrlRef.clearPointerState();
+                const appId = dragCtrlRef.handleRelease();
                 if (appId) launchCtrlRef.activateOrLaunch(appId);
             }
 
             onCanceled: {
-                dragCtrlRef.endDrag();
-                dragCtrlRef.clearPointerState();
+                dragCtrlRef.handleCancel();
             }
         }
 
