@@ -8,3 +8,4 @@ dock.files
 dock.config
 dock.cxxflags
 dock.includes
+settings.json
