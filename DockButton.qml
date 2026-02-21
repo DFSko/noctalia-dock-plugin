@@ -4,7 +4,10 @@ import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
 import qs.Services.UI
-import "AppUtils.js" as AppUtils
+import "utils/normalizeAppKey.js" as NormalizeAppKey
+import "utils/normalizeDesktopId.js" as NormalizeDesktopId
+import "utils/displayNameFor.js" as DisplayNameFor
+import "utils/dockButtonLogic.js" as DockButtonLogic
 
 Item {
     id: dockButton
@@ -15,13 +18,13 @@ Item {
 
     property bool isPinnedEntry: true
     property bool hovering: !contextMenu.visible && buttonArea.containsMouse && !isDragPlaceholder
-    readonly property bool isDragPlaceholder: dock.dragActive && AppUtils.normalizeAppKey(dock.dragAppId) === AppUtils.normalizeAppKey(appId)
-    readonly property string iconSource: ThemeIcons.iconForAppId(AppUtils.normalizeDesktopId(appId).toLowerCase())
-    readonly property int runningCount: Math.min(3, dock.findMatchingToplevels(appId).length)
+    readonly property bool isDragPlaceholder: dock.dragActive && NormalizeAppKey.normalizeAppKey(dock.dragAppId) === NormalizeAppKey.normalizeAppKey(appId)
+    readonly property string iconSource: ThemeIcons.iconForAppId(NormalizeDesktopId.normalizeDesktopId(appId).toLowerCase())
+    readonly property int runningCount: Math.min(3, dock.launchCtrl.findMatchingToplevels(appId).length)
     readonly property bool isRunning: runningCount > 0
-    readonly property bool isLaunchPending: !isRunning && dock.launchFeedbackAppKey !== '' && dock.launchFeedbackAppKey === AppUtils.normalizeAppKey(appId)
+    readonly property bool isLaunchPending: !isRunning && dock.launchFeedbackAppKey !== '' && dock.launchFeedbackAppKey === NormalizeAppKey.normalizeAppKey(appId)
     readonly property bool isShaking: dock.notificationShakeAppKey !== ''
-        && dock.notificationShakeAppKey === AppUtils.normalizeAppKey(appId)
+        && dock.notificationShakeAppKey === NormalizeAppKey.normalizeAppKey(appId)
         && !isDragPlaceholder
     property var desktopActions: []
 
@@ -29,56 +32,40 @@ Item {
     height: dock.iconSize + dock.buttonPadding
 
     function buildContextModel() {
-        const next = [];
         const running = isRunning;
-        const pinned = dock.isAppPinned(appId);
-
-        next.push({ key: 'launch', label: I18n.tr('common.execute'), icon: 'play' });
-
-        if (running) {
-            next.push({ key: 'focus', label: I18n.tr('common.focus'), icon: 'eye' });
-        }
-
-        next.push({
-            key: pinned ? 'unpin' : 'pin',
-            label: pinned ? I18n.tr('common.unpin') : I18n.tr('common.pin'),
-            icon: pinned ? 'unpin' : 'pin'
-        });
-
-        if (running) {
-            next.push({ key: 'close', label: I18n.tr('common.close'), icon: 'close' });
-        }
-
+        const pinned = dock.dragCtrl.isAppPinned(appId);
         const entry = DesktopEntries.heuristicLookup(appId);
         const actions = (entry && entry.actions) ? entry.actions : [];
         desktopActions = actions;
 
-        for (let i = 0; i < actions.length; i++) {
-            next.push({ key: `desktop-${i}`, label: actions[i].name, icon: 'chevron-right' });
-        }
-
-        return next;
+        return DockButtonLogic.buildContextModel(running, pinned, actions, {
+            launch: I18n.tr('common.execute'),
+            focus: I18n.tr('common.focus'),
+            pin: I18n.tr('common.pin'),
+            unpin: I18n.tr('common.unpin'),
+            close: I18n.tr('common.close')
+        });
     }
 
     function triggerMenuAction(actionKey) {
         if (actionKey === 'launch') {
-            if (dock.launchApp(appId)) dock.markLaunchFeedback(appId);
+            if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
             return;
         }
         if (actionKey === 'focus') {
-            dock.focusApp(appId);
+            dock.launchCtrl.focusApp(appId);
             return;
         }
         if (actionKey === 'pin' || actionKey === 'unpin') {
-            dock.togglePin(appId);
+            dock.dragCtrl.togglePin(appId);
             return;
         }
         if (actionKey === 'close') {
-            dock.closeApp(appId);
+            dock.launchCtrl.closeApp(appId);
             return;
         }
-        if (actionKey.startsWith('desktop-')) {
-            const idx = parseInt(actionKey.replace('desktop-', ''), 10);
+        const idx = DockButtonLogic.desktopActionIndex(actionKey);
+        if (idx >= 0) {
             const action = desktopActions[idx];
             if (!action) return;
             if (action.command && action.command.length > 0) {
@@ -205,7 +192,7 @@ Item {
         NText {
             anchors.centerIn: parent
             visible: !appIcon.visible && !dockButton.isDragPlaceholder
-            text: AppUtils.displayNameFor(dockButton.appId)
+            text: DisplayNameFor.displayNameFor(dockButton.appId)
             color: Color.mOnSurface
             pointSize: Math.max(10, dock.iconSize * 0.26)
             font.weight: Style.fontWeightBold
@@ -233,7 +220,7 @@ Item {
                 contextMenu.model = dockButton.buildContextModel();
                 PanelService.showContextMenu(contextMenu, contextAnchor, dockButton.screen);
             } else if (mouse.button === Qt.LeftButton) {
-                dock.activateOrLaunch(dockButton.appId);
+                dock.launchCtrl.activateOrLaunch(dockButton.appId);
             }
         }
     }

@@ -2,7 +2,8 @@ import QtQuick
 import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
-import "AppUtils.js" as AppUtils
+import "utils/normalizeDesktopId.js" as NormalizeDesktopId
+import "utils/displayNameFor.js" as DisplayNameFor
 
 Item {
     id: dragGhost
@@ -57,7 +58,7 @@ Item {
             id: dragGhostIcon
             anchors.fill: parent
             anchors.margins: dock.iconInset
-            source: ThemeIcons.iconForAppId(AppUtils.normalizeDesktopId(dock.dragAppId).toLowerCase())
+            source: ThemeIcons.iconForAppId(NormalizeDesktopId.normalizeDesktopId(dock.dragAppId).toLowerCase())
             visible: source.toString() !== ''
             smooth: true
             asynchronous: true
@@ -66,7 +67,7 @@ Item {
         NText {
             anchors.centerIn: parent
             visible: !dragGhostIcon.visible
-            text: AppUtils.displayNameFor(dock.dragAppId)
+            text: DisplayNameFor.displayNameFor(dock.dragAppId)
             color: Color.mOnSurface
             pointSize: Math.max(10, dock.iconSize * 0.26)
             font.weight: Style.fontWeightBold

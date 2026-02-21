@@ -2,14 +2,15 @@ import QtQuick
 import QtQuick.Layouts
 import qs.Commons
 import qs.Widgets
+import "utils/settingsLogic.js" as SettingsLogic
 
 ColumnLayout {
     id: root
 
     property var pluginApi: null
 
-    property var cfg: pluginApi?.pluginSettings || ({})
-    property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
+    readonly property var cfg: pluginApi?.pluginSettings || ({})
+    readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
     property bool valueEnabled: cfg.enabled ?? defaults.enabled ?? true
     property int valueIconSize: cfg.iconSize ?? defaults.iconSize ?? 46
@@ -121,12 +122,21 @@ ColumnLayout {
     function saveSettings() {
         if (!pluginApi) return;
 
-        pluginApi.pluginSettings.enabled = root.valueEnabled;
-        pluginApi.pluginSettings.iconSize = root.valueIconSize;
-        pluginApi.pluginSettings.spacing = root.valueSpacing;
-        pluginApi.pluginSettings.iconInset = root.valueIconInset;
-        pluginApi.pluginSettings.backgroundOpacity = root.valueOpacity;
-        pluginApi.pluginSettings.workspaceScrollEnabled = root.valueWorkspaceScrollEnabled;
+        const payload = SettingsLogic.buildPluginSettingsPayload({
+            enabled: root.valueEnabled,
+            iconSize: root.valueIconSize,
+            spacing: root.valueSpacing,
+            iconInset: root.valueIconInset,
+            backgroundOpacity: root.valueOpacity,
+            workspaceScrollEnabled: root.valueWorkspaceScrollEnabled
+        });
+
+        pluginApi.pluginSettings.enabled = payload.enabled;
+        pluginApi.pluginSettings.iconSize = payload.iconSize;
+        pluginApi.pluginSettings.spacing = payload.spacing;
+        pluginApi.pluginSettings.iconInset = payload.iconInset;
+        pluginApi.pluginSettings.backgroundOpacity = payload.backgroundOpacity;
+        pluginApi.pluginSettings.workspaceScrollEnabled = payload.workspaceScrollEnabled;
 
         pluginApi.saveSettings();
     }
