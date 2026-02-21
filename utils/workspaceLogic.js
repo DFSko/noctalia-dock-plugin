@@ -1,7 +1,21 @@
+function workspaceValues(source) {
+    if (!source) return [];
+
+    if (typeof source.count === 'number' && typeof source.get === 'function') {
+        const next = [];
+        for (let i = 0; i < source.count; i++) {
+            next.push(source.get(i));
+        }
+        return next;
+    }
+
+    return Array.isArray(source) ? source : [];
+}
+
 function selectWorkspaceTarget(workspaces, globalWorkspaces, screenName, offset) {
     if (!offset) return null;
 
-    const values = workspaces || [];
+    const values = workspaceValues(workspaces);
     if (values.length === 0) return null;
 
     const allWorkspaces = [];

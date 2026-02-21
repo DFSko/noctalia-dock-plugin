@@ -1,10 +1,54 @@
 .import "appIdLogic.js" as AppIdLogic
 
+function buildPinnedMatchState(pinnedApps) {
+    const values = pinnedApps || [];
+    const keySet = new Set();
+    const suffixSet = new Set();
+    const dashPrefixSet = new Set();
+
+    for (let i = 0; i < values.length; i++) {
+        const key = AppIdLogic.normalizeAppKey(values[i]);
+        if (!key) continue;
+
+        keySet.add(key);
+        suffixSet.add(key.split('.').pop());
+
+        let dashIndex = key.indexOf('-');
+        while (dashIndex > 0) {
+            dashPrefixSet.add(key.slice(0, dashIndex));
+            dashIndex = key.indexOf('-', dashIndex + 1);
+        }
+    }
+
+    return {
+        keySet: keySet,
+        suffixSet: suffixSet,
+        dashPrefixSet: dashPrefixSet
+    };
+}
+
+function pinnedMatchesAppKey(appKey, pinnedState) {
+    if (!appKey) return false;
+
+    if (pinnedState.keySet.has(appKey)) return true;
+    if (pinnedState.suffixSet.has(appKey.split('.').pop())) return true;
+    if (pinnedState.dashPrefixSet.has(appKey)) return true;
+
+    let dashIndex = appKey.indexOf('-');
+    while (dashIndex > 0) {
+        if (pinnedState.keySet.has(appKey.slice(0, dashIndex))) return true;
+        dashIndex = appKey.indexOf('-', dashIndex + 1);
+    }
+
+    return false;
+}
+
 function collectUnpinnedRunningApps(toplevels, pinnedApps) {
     const values = toplevels || [];
     const pinned = pinnedApps || [];
     const seen = new Set();
     const result = [];
+    const pinnedState = buildPinnedMatchState(pinned);
 
     for (let i = 0; i < values.length; i++) {
         const t = values[i];
@@ -14,7 +58,7 @@ function collectUnpinnedRunningApps(toplevels, pinnedApps) {
         if (seen.has(key)) continue;
         seen.add(key);
 
-        if (pinned.some(p => AppIdLogic.appIdsMatch(p, t.appId))) continue;
+        if (pinnedMatchesAppKey(key, pinnedState)) continue;
         result.push(t.appId);
     }
 

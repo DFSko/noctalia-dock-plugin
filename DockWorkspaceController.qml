@@ -13,15 +13,8 @@ QtObject {
         const model = service?.workspaces;
         if (!model || !offset || model.count === 0) return false;
 
-        const workspaces = [];
-        for (let i = 0; i < model.count; i++) {
-            const ws = model.get(i);
-            if (!ws) continue;
-            workspaces.push(ws);
-        }
-
         const targetWorkspace = WorkspaceLogic.selectWorkspaceTarget(
-            workspaces,
+            model,
             service.globalWorkspaces,
             screenObj?.name || '',
             offset
