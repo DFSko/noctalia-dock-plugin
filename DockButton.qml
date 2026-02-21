@@ -18,6 +18,17 @@ Item {
     property bool hovering: !contextMenu.visible && buttonArea.containsMouse && !isDragPlaceholder
     readonly property bool isDragPlaceholder: dock.dragCtrl.dragActive && AppIdLogic.normalizeAppKey(dock.dragCtrl.dragAppId) === AppIdLogic.normalizeAppKey(appId)
     readonly property string iconSource: ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(appId).toLowerCase())
+    readonly property string tooltipLabel: {
+        const entry = DesktopEntries.heuristicLookup(appId);
+        const entryName = String(entry?.name || '').trim();
+        if (entryName) return entryName;
+
+        const fallbackName = String(appId || '').trim();
+        if (fallbackName) return fallbackName.replace(/\.desktop$/i, '');
+
+        return AppIdLogic.displayNameFor(appId);
+    }
+    readonly property string tooltipDirection: 'right'
     readonly property int runningCount: Math.min(3, dock.launchCtrl.findMatchingToplevels(appId).length)
     readonly property bool isRunning: runningCount > 0
     readonly property bool isLaunchPending: !isRunning && dock.launchCtrl.launchFeedbackAppKey !== '' && dock.launchCtrl.launchFeedbackAppKey === AppIdLogic.normalizeAppKey(appId)
@@ -215,7 +226,14 @@ Item {
         acceptedButtons: dockButton.isPinnedEntry ? Qt.RightButton : (Qt.RightButton | Qt.LeftButton)
         cursorShape: Qt.PointingHandCursor
 
+        onEntered: {
+            if (dockButton.isDragPlaceholder || !dockButton.tooltipLabel) return;
+            TooltipService.show(dockButton, dockButton.tooltipLabel, dockButton.tooltipDirection);
+        }
+        onExited: TooltipService.hide()
+
         onClicked: mouse => {
+            TooltipService.hide();
             if (mouse.button === Qt.RightButton) {
                 contextMenu.model = dockButton.buildContextModel();
                 PanelService.showContextMenu(contextMenu, contextAnchor, dockButton.screen);
