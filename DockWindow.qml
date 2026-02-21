@@ -159,6 +159,13 @@ PanelWindow {
                     return;
                 }
 
+                // Only treat presses inside the actual button lane as app clicks.
+                const buttonExtent = dock.iconSize + dock.buttonPadding;
+                if (point.x < 0 || point.x > buttonExtent) {
+                    dragCtrlRef.clearPointerState();
+                    return;
+                }
+
                 const index = dragCtrlRef.indexAtColumnY(point.y, arr.length);
                 if (index < 0) {
                     dragCtrlRef.clearPointerState();
