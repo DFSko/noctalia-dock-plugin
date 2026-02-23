@@ -1,9 +1,9 @@
 function buildContextModel(running, pinned, desktopActions, labels) {
     const actions = desktopActions || [];
-    const i18n = labels || ({});
-    const next = [];
-
-    next.push({ key: 'launch', label: i18n.launch, icon: 'play' });
+    const i18n = labels || {};
+    const next = [
+        { key: 'launch', label: i18n.launch, icon: 'play' }
+    ];
 
     if (running) {
         next.push({ key: 'focus', label: i18n.focus, icon: 'eye' });
@@ -19,9 +19,7 @@ function buildContextModel(running, pinned, desktopActions, labels) {
         next.push({ key: 'close', label: i18n.close, icon: 'close' });
     }
 
-    for (let i = 0; i < actions.length; i++) {
-        next.push({ key: `desktop-${i}`, label: actions[i].name, icon: 'chevron-right' });
-    }
+    actions.forEach((a, i) => next.push({ key: `desktop-${i}`, label: a.name, icon: 'chevron-right' }));
 
     return next;
 }

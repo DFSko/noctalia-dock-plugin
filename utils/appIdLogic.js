@@ -8,14 +8,25 @@ function normalizeAppKey(appId) {
     return String(appId || '').trim().toLowerCase().replace(/\.desktop$/, '');
 }
 
+/**
+ * Compare two app IDs for matching.
+ * Logic:
+ * 1. Normalize both IDs (lowercase, strip .desktop suffix)
+ * 2. Exact match after normalization
+ * 3. Match by last segment (e.g., "org.kde.kate" matches "kate")
+ * 4. Prefix match with hyphen separator (e.g., "foo" matches "foo-bar")
+ * Examples:
+ *   appIdsMatch("kate", "kate.desktop") -> true
+ *   appIdsMatch("org.kde.kate", "kate") -> true
+ *   appIdsMatch("foo", "foo-bar") -> true
+ */
 function appIdsMatch(a, b) {
     const ka = normalizeAppKey(a);
     const kb = normalizeAppKey(b);
     if (!ka || !kb) return false;
     if (ka === kb) return true;
     if (ka.split('.').pop() === kb.split('.').pop()) return true;
-    const shorter = ka.length <= kb.length ? ka : kb;
-    const longer = ka.length <= kb.length ? kb : ka;
+    const [shorter, longer] = ka.length <= kb.length ? [ka, kb] : [kb, ka];
     return longer.startsWith(shorter) && longer[shorter.length] === '-';
 }
 

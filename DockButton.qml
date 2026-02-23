@@ -21,12 +21,7 @@ Item {
     readonly property string tooltipLabel: {
         const entry = DesktopEntries.heuristicLookup(appId);
         const entryName = String(entry?.name || '').trim();
-        if (entryName) return entryName;
-
-        const fallbackName = String(appId || '').trim();
-        if (fallbackName) return fallbackName.replace(/\.desktop$/i, '');
-
-        return AppIdLogic.displayNameFor(appId);
+        return entryName || (appId ? String(appId).trim().replace(/\.desktop$/i, '') : AppIdLogic.displayNameFor(appId));
     }
     readonly property string tooltipDirection: 'right'
     readonly property int runningCount: Math.min(3, dock.launchCtrl.findMatchingToplevels(appId).length)
@@ -57,32 +52,25 @@ Item {
     }
 
     function triggerMenuAction(actionKey) {
-        switch (actionKey) {
-        case 'launch':
-            if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId);
+        const actions = {
+            launch: () => { if (dock.launchCtrl.launchApp(appId)) dock.launchCtrl.markLaunchFeedback(appId); },
+            focus: () => dock.launchCtrl.focusApp(appId),
+            pin: () => dock.dragCtrl.togglePin(appId),
+            unpin: () => dock.dragCtrl.togglePin(appId),
+            close: () => dock.launchCtrl.closeApp(appId)
+        };
+
+        if (actions[actionKey]) {
+            actions[actionKey]();
             return;
-        case 'focus':
-            dock.launchCtrl.focusApp(appId);
-            return;
-        case 'pin':
-        case 'unpin':
-            dock.dragCtrl.togglePin(appId);
-            return;
-        case 'close':
-            dock.launchCtrl.closeApp(appId);
-            return;
-        default:
-            break;
         }
 
         const idx = DockButtonLogic.desktopActionIndex(actionKey);
         if (idx >= 0) {
             const action = desktopActions[idx];
-            if (!action) return;
-            if (action.command && action.command.length > 0) {
-                Quickshell.execDetached(action.command);
-            } else if (action.execute) {
-                action.execute();
+            if (action) {
+                if (action.command?.length > 0) Quickshell.execDetached(action.command);
+                else if (action.execute) action.execute();
             }
         }
     }
@@ -103,16 +91,15 @@ Item {
         height: 1
         y: parent.height * 0.5
         x: {
-            const pos = Settings.getBarPositionForScreen(dockButton.screen?.name);
             const menuWidth = Math.max(contextMenu.calculatedWidth || 0, contextMenu.implicitWidth || 0);
+            const baseOffset = parent.width + 4;
+            const hMargin = Style.marginM + 1;
 
-            if (pos === 'right') {
-                return parent.width + menuWidth + Style.marginM + 4;
+            switch (Settings.getBarPositionForScreen(dockButton.screen?.name)) {
+            case 'right': return baseOffset + menuWidth + hMargin + 3;
+            case 'left': return baseOffset - hMargin - 3;
+            default: return baseOffset + (menuWidth * 0.5) - 0.5;
             }
-            if (pos === 'left') {
-                return parent.width + 4 - (1 + Style.marginM);
-            }
-            return parent.width + 4 + (menuWidth * 0.5) - 0.5;
         }
         opacity: 0
     }
@@ -227,7 +214,7 @@ Item {
         cursorShape: Qt.PointingHandCursor
 
         onEntered: {
-            if (dockButton.isDragPlaceholder || !dockButton.tooltipLabel) return;
+            if (dockButton.isDragPlaceholder || !dockButton.tooltipLabel?.trim()) return;
             TooltipService.show(dockButton, dockButton.tooltipLabel, dockButton.tooltipDirection);
         }
         onExited: TooltipService.hide()

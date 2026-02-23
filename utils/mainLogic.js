@@ -13,18 +13,13 @@ function buildPinnedMatchState(pinnedApps) {
         keySet.add(key);
         suffixSet.add(key.split('.').pop());
 
-        let dashIndex = key.indexOf('-');
-        while (dashIndex > 0) {
-            dashPrefixSet.add(key.slice(0, dashIndex));
-            dashIndex = key.indexOf('-', dashIndex + 1);
+        const parts = key.split('-');
+        for (let j = 0; j < parts.length - 1; j++) {
+            dashPrefixSet.add(parts.slice(0, j + 1).join('-'));
         }
     }
 
-    return {
-        keySet: keySet,
-        suffixSet: suffixSet,
-        dashPrefixSet: dashPrefixSet
-    };
+    return { keySet, suffixSet, dashPrefixSet };
 }
 
 function pinnedMatchesAppKey(appKey, pinnedState) {
@@ -34,10 +29,9 @@ function pinnedMatchesAppKey(appKey, pinnedState) {
     if (pinnedState.suffixSet.has(appKey.split('.').pop())) return true;
     if (pinnedState.dashPrefixSet.has(appKey)) return true;
 
-    let dashIndex = appKey.indexOf('-');
-    while (dashIndex > 0) {
-        if (pinnedState.keySet.has(appKey.slice(0, dashIndex))) return true;
-        dashIndex = appKey.indexOf('-', dashIndex + 1);
+    const parts = appKey.split('-');
+    for (let j = 0; j < parts.length - 1; j++) {
+        if (pinnedState.keySet.has(parts.slice(0, j + 1).join('-'))) return true;
     }
 
     return false;

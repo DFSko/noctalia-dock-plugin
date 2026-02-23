@@ -59,25 +59,28 @@ function beginDragState(appId, leftPressColumnY) {
     };
 }
 
-function reorderTargetIndex(columnY, iconSize, buttonPadding, spacing) {
+function _buttonStep(iconSize, buttonPadding, spacing) {
+    if (iconSize <= 0 || buttonPadding < 0 || spacing < 0) return null;
     const buttonExtent = iconSize + buttonPadding;
     const step = buttonExtent + spacing;
-    if (step <= 0 || buttonExtent <= 0) return null;
-    return Math.round((columnY - (buttonExtent * 0.5)) / step);
+    return (step > 0 && buttonExtent > 0) ? { buttonExtent, step } : null;
+}
+
+function reorderTargetIndex(columnY, iconSize, buttonPadding, spacing) {
+    const metrics = _buttonStep(iconSize, buttonPadding, spacing);
+    if (!metrics) return null;
+    return Math.round((columnY - (metrics.buttonExtent * 0.5)) / metrics.step);
 }
 
 function indexAtColumnY(columnY, appCount, iconSize, buttonPadding, spacing) {
     if (appCount <= 0) return -1;
 
-    const buttonExtent = iconSize + buttonPadding;
-    const step = buttonExtent + spacing;
-    if (step <= 0 || buttonExtent <= 0) return -1;
+    const metrics = _buttonStep(iconSize, buttonPadding, spacing);
+    if (!metrics) return -1;
 
-    const rawIndex = Math.floor(columnY / step);
+    const rawIndex = Math.floor(columnY / metrics.step);
     if (rawIndex < 0 || rawIndex >= appCount) return -1;
 
-    const offsetInSlot = columnY - (rawIndex * step);
-    if (offsetInSlot < 0 || offsetInSlot > buttonExtent) return -1;
-
-    return rawIndex;
+    const offsetInSlot = columnY - (rawIndex * metrics.step);
+    return (offsetInSlot >= 0 && offsetInSlot <= metrics.buttonExtent) ? rawIndex : -1;
 }

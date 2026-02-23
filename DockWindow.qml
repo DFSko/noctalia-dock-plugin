@@ -151,14 +151,18 @@ PanelWindow {
             acceptedButtons: Qt.LeftButton
             preventStealing: true
 
+            function mapToColumn(mouse) {
+                return dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
+            }
+
             onPressed: mouse => {
-                const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
+                const point = mapToColumn(mouse);
                 dragCtrlRef.handlePressAt(point.x, point.y, dock.pinnedApps);
             }
 
             onPositionChanged: mouse => {
                 if (!dragCtrlRef.leftPressActive) return;
-                const point = dockColumn.mapFromItem(dragCatcher, mouse.x, mouse.y);
+                const point = mapToColumn(mouse);
                 dragCtrlRef.handleMoveAt(point.y, Qt.styleHints.startDragDistance);
             }
 
@@ -167,9 +171,7 @@ PanelWindow {
                 if (appId) launchCtrlRef.activateOrLaunch(appId);
             }
 
-            onCanceled: {
-                dragCtrlRef.handleCancel();
-            }
+            onCanceled: dragCtrlRef.handleCancel()
         }
 
         DragGhost {

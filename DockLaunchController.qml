@@ -92,15 +92,20 @@ Item {
         );
 
         let launched = false;
-        if (plan.type === 'execDetached' && plan.command && plan.command.length > 0) {
+        if (plan.type === 'execDetached' && plan.command?.length > 0) {
             Quickshell.execDetached(plan.command);
             launched = true;
-        } else if (plan.type === 'spawn' && plan.command && plan.command.length > 0) {
+        } else if (plan.type === 'spawn' && plan.command?.length > 0) {
             CompositorService.spawn(plan.command);
             launched = true;
         } else if (plan.type === 'execute' && app.execute) {
-            app.execute();
-            launched = true;
+            try {
+                app.execute();
+                launched = true;
+            } catch (e) {
+                Logger.e('noctalia-dock-plugin', `Failed to execute ${normalized}: ${e}`);
+                launchFeedbackAppKey = '';
+            }
         }
 
         if (launched) {

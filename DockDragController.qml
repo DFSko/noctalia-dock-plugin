@@ -114,16 +114,16 @@ QtObject {
 
         dragColumnY = columnY;
 
-        if (!dragActive) {
+        if (!dragActive && leftPressedAppId) {
             const dragDistance = Math.abs(columnY - leftPressColumnY);
-            if (dragDistance >= startDragDistance && leftPressedAppId) {
+            if (dragDistance >= startDragDistance)
                 beginDrag(leftPressedAppId);
-            }
         }
 
-        if (!dragActive) return false;
-        updateDragTargetFromColumnY(columnY);
-        return true;
+        if (dragActive)
+            updateDragTargetFromColumnY(columnY);
+
+        return dragActive;
     }
 
     function handleRelease() {

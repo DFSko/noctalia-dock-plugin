@@ -12,12 +12,19 @@ ColumnLayout {
     readonly property var cfg: pluginApi?.pluginSettings || ({})
     readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-    property bool valueEnabled: cfg.enabled ?? defaults.enabled ?? true
-    property int valueIconSize: cfg.iconSize ?? defaults.iconSize ?? 46
-    property int valueSpacing: cfg.spacing ?? defaults.spacing ?? 10
-    property int valueIconInset: cfg.iconInset ?? defaults.iconInset ?? 2
-    property real valueOpacity: cfg.backgroundOpacity ?? defaults.backgroundOpacity ?? 0.78
-    property bool valueWorkspaceScrollEnabled: cfg.workspaceScrollEnabled ?? defaults.workspaceScrollEnabled ?? true
+    function setting(key, fallback) {
+        const c = cfg[key] ?? null;
+        if (c !== null) return c;
+        const d = defaults[key] ?? null;
+        return d !== null ? d : fallback;
+    }
+
+    property bool valueEnabled: setting('enabled', true)
+    property int valueIconSize: setting('iconSize', 46)
+    property int valueSpacing: setting('spacing', 10)
+    property int valueIconInset: setting('iconInset', 2)
+    property real valueOpacity: setting('backgroundOpacity', 0.78)
+    property bool valueWorkspaceScrollEnabled: setting('workspaceScrollEnabled', true)
 
     spacing: Style.marginL
 
@@ -86,18 +93,14 @@ ColumnLayout {
     function saveSettings() {
         if (!pluginApi) return;
 
-        const payload = SettingsLogic.buildPluginSettingsPayload({
+        Object.assign(pluginApi.pluginSettings, SettingsLogic.buildPluginSettingsPayload({
             enabled: root.valueEnabled,
             iconSize: root.valueIconSize,
             spacing: root.valueSpacing,
             iconInset: root.valueIconInset,
             backgroundOpacity: root.valueOpacity,
             workspaceScrollEnabled: root.valueWorkspaceScrollEnabled
-        });
-
-        for (const key in payload) {
-            pluginApi.pluginSettings[key] = payload[key];
-        }
+        }));
 
         pluginApi.saveSettings();
     }

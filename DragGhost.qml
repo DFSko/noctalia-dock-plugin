@@ -18,26 +18,9 @@ Item {
     opacity: dock.dragCtrl.dragActive ? 0.94 : 0
     scale: dock.dragCtrl.dragActive ? 1.06 : 0.97
 
-    Behavior on y {
-        NumberAnimation {
-            duration: Style.animationFast
-            easing.type: Easing.OutCubic
-        }
-    }
-
-    Behavior on opacity {
-        NumberAnimation {
-            duration: Style.animationFast
-            easing.type: Easing.OutCubic
-        }
-    }
-
-    Behavior on scale {
-        NumberAnimation {
-            duration: Style.animationFast
-            easing.type: Easing.OutCubic
-        }
-    }
+    Behavior on y { NumberAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic } }
+    Behavior on opacity { NumberAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic } }
+    Behavior on scale { NumberAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic } }
 
     Rectangle {
         anchors.fill: parent

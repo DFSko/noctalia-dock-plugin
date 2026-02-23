@@ -46,22 +46,20 @@ function selectWorkspaceTarget(workspaces, globalWorkspaces, screenName, offset)
 
 function wheelOffsetsFromDelta(accumulator, deltaY, enabled, stepValue) {
     if (!enabled || deltaY === 0) {
-        return { accumulator: accumulator, offsets: [] };
+        return { accumulator, offsets: [] };
     }
 
     const step = stepValue > 0 ? stepValue : 120;
-    let nextAccumulator = accumulator + (-deltaY);
-    const offsets = [];
+    const total = accumulator + (-deltaY);
+    const offsetCount = Math.floor(Math.abs(total) / step);
 
-    while (nextAccumulator >= step) {
-        offsets.push(1);
-        nextAccumulator -= step;
+    if (offsetCount === 0) {
+        return { accumulator: total, offsets: [] };
     }
 
-    while (nextAccumulator <= -step) {
-        offsets.push(-1);
-        nextAccumulator += step;
-    }
+    const sign = total >= 0 ? 1 : -1;
+    const offsets = Array(offsetCount).fill(sign);
+    const newAccumulator = total - (sign * offsetCount * step);
 
-    return { accumulator: nextAccumulator, offsets: offsets };
+    return { accumulator: newAccumulator, offsets };
 }

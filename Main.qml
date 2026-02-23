@@ -16,14 +16,8 @@ Item {
     readonly property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
     function settingValue(key, fallback) {
-        const settings = pluginApi?.pluginSettings;
-        const configured = settings ? settings[key] : undefined;
-        if (configured !== undefined && configured !== null) return configured;
-
-        const defaultValue = defaults ? defaults[key] : undefined;
-        if (defaultValue !== undefined && defaultValue !== null) return defaultValue;
-
-        return fallback;
+        const v = pluginApi?.pluginSettings?.[key] ?? defaults?.[key] ?? null;
+        return v !== null ? v : fallback;
     }
 
     readonly property bool enabled: settingValue('enabled', true)
@@ -38,7 +32,7 @@ Item {
     readonly property DockDragController dragCtrl: dragController
     readonly property DockWorkspaceController workspaceCtrl: workspaceController
     property string notificationShakeAppKey: ''
-    property int _prevNotifCount: 0
+    property int _lastNotifCount: 0
     property var unpinnedRunningApps: []
 
     DockLaunchController {
@@ -91,12 +85,12 @@ Item {
         target: NotificationService.activeList
         function onCountChanged() {
             const count = NotificationService.activeList.count;
-            if (count > root._prevNotifCount && count > 0) {
+            if (count > root._lastNotifCount && count > 0) {
                 const notif = NotificationService.activeList.get(0);
                 if (notif && notif.appName)
                     root.triggerNotificationShake(notif.appName);
             }
-            root._prevNotifCount = count;
+            root._lastNotifCount = count;
         }
     }
 
