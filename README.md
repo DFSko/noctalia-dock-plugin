@@ -11,7 +11,7 @@ A vertical dock plugin for Noctalia shell with pinned apps synced from the launc
 - Shell project: [noctalia-shell](https://github.com/noctalia-dev/noctalia-shell)
 - Plugin id: `noctalia-dock-plugin`
 - Plugin name: `Noctalia Dock (Dash to Dock style)`
-- Current version: `1.0.2`
+- Current version: `1.0.3`
 - Minimum Noctalia Shell version: `4.5.0`
 - Versioning: [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 - Entry points: `Main.qml`, `Settings.qml`
@@ -65,6 +65,7 @@ https://github.com/DFSko/noctalia-dock-plugin
 - Scroll on dock background to switch workspaces via `CompositorService.switchToWorkspace`
 - Notification shake animation on dock icons when apps receive notifications
 - Uses shell launcher behavior (`customLaunchPrefix`, `app2unit`, terminal command fallback)
+- **Move to Workspace**: Right-click on a running app to move its window to another workspace (Hyprland, Niri, Sway, Scroll, MangoWC)
 
 ## Settings
 
