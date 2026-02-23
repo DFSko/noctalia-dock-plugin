@@ -4,8 +4,10 @@ import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
 import qs.Services.UI
+import qs.Services.Compositor
 import "utils/appIdLogic.js" as AppIdLogic
 import "utils/dockButtonLogic.js" as DockButtonLogic
+import "utils/moveWindowLogic.js" as MoveWindowLogic
 
 Item {
     id: dockButton
@@ -31,6 +33,32 @@ Item {
         && dock.notificationShakeAppKey === AppIdLogic.normalizeAppKey(appId)
         && !isDragPlaceholder
     property var desktopActions: []
+    property var workspaceList: []
+    property int currentWorkspaceId: -1
+
+    function updateWorkspaceInfo() {
+        if (!isRunning) {
+            workspaceList = [];
+            currentWorkspaceId = -1;
+            return;
+        }
+
+        const matches = dock.launchCtrl.findMatchingToplevels(appId);
+        if (matches.length === 0) {
+            workspaceList = [];
+            currentWorkspaceId = -1;
+            return;
+        }
+
+        const toplevel = matches[0];
+        const ws = toplevel?.workspace;
+        currentWorkspaceId = ws?.id || ws?.idx || -1;
+
+        workspaceList = MoveWindowLogic.buildWorkspaceList(
+            CompositorService?.workspaces,
+            currentWorkspaceId
+        );
+    }
 
     width: dock.iconSize + dock.buttonPadding
     height: dock.iconSize + dock.buttonPadding
@@ -42,13 +70,16 @@ Item {
         const actions = (entry && entry.actions) ? entry.actions : [];
         desktopActions = actions;
 
+        updateWorkspaceInfo();
+
         return DockButtonLogic.buildContextModel(running, pinned, actions, {
             launch: I18n.tr('common.execute'),
             focus: I18n.tr('common.focus'),
             pin: I18n.tr('common.pin'),
             unpin: I18n.tr('common.unpin'),
-            close: I18n.tr('common.close')
-        });
+            close: I18n.tr('common.close'),
+            moveToWorkspace: 'Workspace'
+        }, workspaceList.length > 0);
     }
 
     function triggerMenuAction(actionKey) {
@@ -65,6 +96,13 @@ Item {
             return;
         }
 
+        // Handle move to workspace action
+        if (actionKey && actionKey.startsWith('move-to-workspace-')) {
+            const workspaceId = actionKey.replace('move-to-workspace-', '');
+            MoveWindowLogic.moveToWorkspaceById(appId, workspaceId, dock.launchCtrl);
+            return;
+        }
+
         const idx = DockButtonLogic.desktopActionIndex(actionKey);
         if (idx >= 0) {
             const action = desktopActions[idx];
@@ -75,13 +113,31 @@ Item {
         }
     }
 
+    property bool showingWorkspaceMenu: false
+
     NPopupContextMenu {
         id: contextMenu
         model: []
 
         onTriggered: action => {
+            // Handle "Workspace" menu item - show workspace submenu
+            if (action === 'move') {
+                showWorkspaceMenu();
+                return;
+            }
+            // Handle back button to return to main menu
+            if (action === 'back-to-main') {
+                showMainMenu();
+                return;
+            }
             dockButton.triggerMenuAction(action);
             PanelService.closeContextMenu(dockButton.screen);
+        }
+
+        onVisibleChanged: {
+            if (!visible) {
+                showingWorkspaceMenu = false;
+            }
         }
     }
 
@@ -102,6 +158,31 @@ Item {
             }
         }
         opacity: 0
+    }
+
+    function showWorkspaceMenu() {
+        showingWorkspaceMenu = true;
+        const items = workspaceList.map(ws => ({
+            key: ws.key,
+            label: ws.label,
+            icon: ws.icon,
+            disabled: ws.disabled
+        }));
+        // Add back button at the top
+        items.unshift({
+            key: 'back-to-main',
+            label: I18n.tr('common.back'),
+            icon: 'chevron-left'
+        });
+        contextMenu.model = items;
+        // Re-open the menu to show new content
+        PanelService.showContextMenu(contextMenu, contextAnchor, screen);
+    }
+
+    function showMainMenu() {
+        showingWorkspaceMenu = false;
+        contextMenu.model = dockButton.buildContextModel();
+        PanelService.showContextMenu(contextMenu, contextAnchor, screen);
     }
 
 

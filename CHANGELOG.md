@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-02-23
+
+### Added
+- Added "Move to Workspace" submenu item in right-click context menu for running applications
+- Support for moving windows across workspaces on Hyprland, Niri, Sway, Scroll, and MangoWC compositors
+- New utility module `utils/moveWindowLogic.js` for compositor-agnostic window management
+
+### Changed
+- Updated `utils/dockButtonLogic.js` to support submenu items in context menu
+- Enhanced `DockButton.qml` with workspace awareness and move functionality
+
 ## [1.0.2] - 2026-02-21
 
 ### Changed

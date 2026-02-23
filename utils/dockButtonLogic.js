@@ -1,4 +1,4 @@
-function buildContextModel(running, pinned, desktopActions, labels) {
+function buildContextModel(running, pinned, desktopActions, labels, hasMoveSupport) {
     const actions = desktopActions || [];
     const i18n = labels || {};
     const next = [
@@ -7,6 +7,11 @@ function buildContextModel(running, pinned, desktopActions, labels) {
 
     if (running) {
         next.push({ key: 'focus', label: i18n.focus, icon: 'eye' });
+    }
+
+    // Add "Workspace" submenu item for running apps
+    if (running && hasMoveSupport) {
+        next.push({ key: 'move', label: i18n.moveToWorkspace || 'Workspace', icon: 'chevron-right' });
     }
 
     next.push({
