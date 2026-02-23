@@ -25,6 +25,7 @@ ColumnLayout {
     property int valueIconInset: setting('iconInset', 2)
     property real valueOpacity: setting('backgroundOpacity', 0.78)
     property bool valueWorkspaceScrollEnabled: setting('workspaceScrollEnabled', true)
+    property int valueWorkspaceScrollSpeed: setting('workspaceScrollSpeed', 4)
 
     spacing: Style.marginL
 
@@ -85,6 +86,18 @@ ColumnLayout {
         checked: root.valueWorkspaceScrollEnabled
         onToggled: checked => root.valueWorkspaceScrollEnabled = checked
     }
+
+    SettingSliderRow {
+        label: 'Workspace scroll speed'
+        description: 'How many workspaces to switch per second when scrolling'
+        from: 1
+        to: 10
+        stepSize: 1
+        value: root.valueWorkspaceScrollSpeed
+        text: String(root.valueWorkspaceScrollSpeed) + ' ws/sec'
+        onMoved: value => root.valueWorkspaceScrollSpeed = Math.round(value)
+    }
+
     NLabel {
         label: 'Pinned apps source'
         description: 'Apps are synced from launcher pins: Settings.data.appLauncher.pinnedApps'
@@ -99,7 +112,8 @@ ColumnLayout {
             spacing: root.valueSpacing,
             iconInset: root.valueIconInset,
             backgroundOpacity: root.valueOpacity,
-            workspaceScrollEnabled: root.valueWorkspaceScrollEnabled
+            workspaceScrollEnabled: root.valueWorkspaceScrollEnabled,
+            workspaceScrollSpeed: root.valueWorkspaceScrollSpeed
         }));
 
         pluginApi.saveSettings();

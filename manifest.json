@@ -1,7 +1,7 @@
 {
   "id": "noctalia-dock-plugin",
   "name": "Noctalia Dock (Dash to Dock style)",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "minNoctaliaVersion": "4.5.0",
   "author": "dfs",
   "license": "MIT",
@@ -25,7 +25,8 @@
       "spacing": 10,
       "iconInset": 2,
       "backgroundOpacity": 0.78,
-      "workspaceScrollEnabled": true
+      "workspaceScrollEnabled": true,
+      "workspaceScrollSpeed": 4
     }
   }
 }

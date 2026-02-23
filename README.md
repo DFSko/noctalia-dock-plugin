@@ -11,7 +11,7 @@ A vertical dock plugin for Noctalia shell with pinned apps synced from the launc
 - Shell project: [noctalia-shell](https://github.com/noctalia-dev/noctalia-shell)
 - Plugin id: `noctalia-dock-plugin`
 - Plugin name: `Noctalia Dock (Dash to Dock style)`
-- Current version: `1.0.3`
+- Current version: `1.0.4`
 - Minimum Noctalia Shell version: `4.5.0`
 - Versioning: [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`)
 - Entry points: `Main.qml`, `Settings.qml`
@@ -77,6 +77,7 @@ Available in plugin settings:
 - Icon inset
 - Background opacity
 - Workspace switch on scroll
+- **Workspace scroll speed** (1-10 workspaces per second)
 
 ## Notes
 

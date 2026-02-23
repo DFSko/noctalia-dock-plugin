@@ -27,6 +27,7 @@ Item {
     readonly property int buttonPadding: Math.max(0, iconInset * 2)
     readonly property real backgroundOpacity: settingValue('backgroundOpacity', 0.78)
     readonly property bool workspaceScrollEnabled: settingValue('workspaceScrollEnabled', true)
+    readonly property int workspaceScrollSpeed: settingValue('workspaceScrollSpeed', 4)
     readonly property var pinnedApps: Settings?.data?.appLauncher?.pinnedApps || []
     readonly property DockLaunchController launchCtrl: launchController
     readonly property DockDragController dragCtrl: dragController
@@ -48,6 +49,7 @@ Item {
     DockWorkspaceController {
         id: workspaceController
         workspaceScrollEnabled: root.workspaceScrollEnabled
+        workspaceScrollSpeed: root.workspaceScrollSpeed
     }
 
     function updateUnpinnedRunningApps() {

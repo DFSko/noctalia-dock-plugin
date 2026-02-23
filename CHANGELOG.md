@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] - 2026-02-23
+
+### Added
+- New `workspaceScrollSpeed` setting (1-10 workspaces per second) for configurable scroll sensitivity
+- Settings slider for workspace scroll speed in `Settings.qml`
+
+### Fixed
+- Fixed workspace scroll switching too fast on rapid scroll events
+- Added debounce mechanism to limit workspace switch rate based on user setting
+- Fixed initial scroll event handling after shell restart
+
 ## [1.0.3] - 2026-02-23
 
 ### Added
