@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
@@ -28,6 +29,12 @@ Item {
     readonly property string tooltipDirection: 'right'
     readonly property int runningCount: Math.min(3, dock.launchCtrl.findMatchingToplevels(appId).length)
     readonly property bool isRunning: runningCount > 0
+    readonly property bool isFocused: {
+        const active = ToplevelManager?.activeToplevel;
+        if (!active) return false;
+        const matches = dock.launchCtrl.findMatchingToplevels(appId);
+        return matches.includes(active);
+    }
     readonly property bool isLaunchPending: !isRunning && dock.launchCtrl.launchFeedbackAppKey !== '' && dock.launchCtrl.launchFeedbackAppKey === AppIdLogic.normalizeAppKey(appId)
     readonly property bool isShaking: dock.notificationShakeAppKey !== ''
         && dock.notificationShakeAppKey === AppIdLogic.normalizeAppKey(appId)
@@ -189,7 +196,12 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: Style.iRadiusM
-        color: (dockButton.hovering && !dockButton.isDragPlaceholder) ? Qt.alpha(Color.mPrimary, 0.20) : 'transparent'
+        color: {
+            if (dockButton.isDragPlaceholder) return 'transparent';
+            if (dockButton.hovering) return Qt.alpha(Color.mPrimary, 0.34);
+            if (dockButton.isFocused) return Qt.alpha(Color.mPrimary, 0.1);
+            return 'transparent';
+        }
 
         Behavior on color {
             ColorAnimation {
