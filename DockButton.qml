@@ -7,6 +7,7 @@ import qs.Widgets
 import qs.Services.UI
 import qs.Services.Compositor
 import "utils/appIdLogic.js" as AppIdLogic
+import "utils/desktopEntryLogic.js" as DesktopEntryLogic
 import "utils/dockButtonLogic.js" as DockButtonLogic
 import "utils/moveWindowLogic.js" as MoveWindowLogic
 
@@ -20,10 +21,14 @@ Item {
     property bool isPinnedEntry: true
     property bool hovering: !contextMenu.visible && buttonArea.containsMouse && !isDragPlaceholder
     readonly property bool isDragPlaceholder: dock.dragCtrl.dragActive && AppIdLogic.normalizeAppKey(dock.dragCtrl.dragAppId) === AppIdLogic.normalizeAppKey(appId)
-    readonly property string iconSource: ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(appId).toLowerCase())
+    readonly property var desktopEntry: DesktopEntryLogic.findDesktopEntry(DesktopEntries, ThemeIcons, AppIdLogic.normalizeDesktopId(appId))
+    readonly property string iconSource: {
+        if (desktopEntry && desktopEntry.icon && ThemeIcons.iconFromName)
+            return ThemeIcons.iconFromName(desktopEntry.icon, 'application-x-executable');
+        return ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(appId).toLowerCase());
+    }
     readonly property string tooltipLabel: {
-        const entry = DesktopEntries.heuristicLookup(appId);
-        const entryName = String(entry?.name || '').trim();
+        const entryName = String(desktopEntry?.name || '').trim();
         return entryName || (appId ? String(appId).trim().replace(/\.desktop$/i, '') : AppIdLogic.displayNameFor(appId));
     }
     readonly property string tooltipDirection: 'right'
@@ -73,7 +78,7 @@ Item {
     function buildContextModel() {
         const running = isRunning;
         const pinned = dock.dragCtrl.isAppPinned(appId);
-        const entry = DesktopEntries.heuristicLookup(appId);
+        const entry = desktopEntry;
         const actions = (entry && entry.actions) ? entry.actions : [];
         desktopActions = actions;
 

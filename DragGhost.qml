@@ -3,6 +3,7 @@ import Quickshell.Widgets
 import qs.Commons
 import qs.Widgets
 import "utils/appIdLogic.js" as AppIdLogic
+import "utils/desktopEntryLogic.js" as DesktopEntryLogic
 
 Item {
     id: dragGhost
@@ -17,6 +18,12 @@ Item {
     y: Math.max(0, Math.min(parent.height - height, dock.dragCtrl.dragColumnY - height * 0.5))
     opacity: dock.dragCtrl.dragActive ? 0.94 : 0
     scale: dock.dragCtrl.dragActive ? 1.06 : 0.97
+    readonly property var desktopEntry: DesktopEntryLogic.findDesktopEntry(DesktopEntries, ThemeIcons, AppIdLogic.normalizeDesktopId(dock.dragCtrl.dragAppId))
+    readonly property string iconSource: {
+        if (desktopEntry && desktopEntry.icon && ThemeIcons.iconFromName)
+            return ThemeIcons.iconFromName(desktopEntry.icon, 'application-x-executable');
+        return ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(dock.dragCtrl.dragAppId).toLowerCase());
+    }
 
     Behavior on y { NumberAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic } }
     Behavior on opacity { NumberAnimation { duration: Style.animationFast; easing.type: Easing.OutCubic } }
@@ -40,7 +47,7 @@ Item {
             id: dragGhostIcon
             anchors.fill: parent
             anchors.margins: dock.iconInset
-            source: ThemeIcons.iconForAppId(AppIdLogic.normalizeDesktopId(dock.dragCtrl.dragAppId).toLowerCase())
+            source: dragGhost.iconSource
             visible: source.toString() !== ''
             smooth: true
             asynchronous: true

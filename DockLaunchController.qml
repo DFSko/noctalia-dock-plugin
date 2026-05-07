@@ -6,6 +6,7 @@ import qs.Services.Compositor
 import qs.Services.System
 import qs.Services.UI
 import "utils/appIdLogic.js" as AppIdLogic
+import "utils/desktopEntryLogic.js" as DesktopEntryLogic
 import "utils/toplevelLogic.js" as ToplevelLogic
 import "utils/launchPlanLogic.js" as LaunchPlanLogic
 
@@ -78,7 +79,7 @@ Item {
             return false;
         }
 
-        const app = ThemeIcons.findAppEntry(normalized);
+        const app = DesktopEntryLogic.findDesktopEntry(DesktopEntries, ThemeIcons, normalized);
         if (!app) {
             ToastService.showWarning(`noctalia-dock-plugin: app not found: ${normalized}`);
             return false;
